@@ -27,6 +27,8 @@ jobs:
       matrix:
         # Also "dlib" and "onnxruntime"
         # --> preferably get from wheel
+
+        # TODO: fix "python-sonic" requiring "python-osc"
         package: ["imutils", "pynput", "python-sonic", "PyV4L2Camera"]
     steps:
       - name: Install stdeb and dependencies
@@ -61,27 +63,14 @@ jobs:
           mv * ${{ github.workspace }}
           cd ${{ github.workspace }}
 
-      - name: Build with virtualenv
-        if: matrix.package == 'python-sonic'
-        run: python setup.py --command-packages=stdeb.command sdist_dsc --with-python2=False --with-python3=True --with-dh-virtualenv bdist_deb
-
-      - name: Build without virtualenv
-        if: matrix.package != 'python-sonic'
-        run: python setup.py --command-packages=stdeb.command sdist_dsc --with-python2=False --with-python3=True bdist_deb
+      # TODO: run on Docker with armhf
+      - name: Build
+        run: python setup.py \
+          --command-packages=stdeb.command \
+          sdist_dsc --with-python2=False --with-python3=True \
+          bdist_deb
 
       - run: mv deb_dist artifacts
-
-      # # We only want ARM builds. This step is here to provide the option of
-      # # using a strategy matrix if additional builds (e.g. `arm64`) are desired
-      # - name: Determine architecture to use from package info
-      #   # If architecture is 'all', then it can be compiled on host architecture
-      #   # All other pi-topOS cases require 'armhf'
-      #   run: |
-      #     target_architecture=amd64
-      #     if grep '^Architecture:' debian/control | grep -q -v 'all'; then
-      #       target_architecture=armhf
-      #     fi
-      #     echo "TARGET_ARCHITECTURE=${target_architecture}" >> $GITHUB_ENV
 
       - name: Generate artifact name
         run: |
