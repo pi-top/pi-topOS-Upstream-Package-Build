@@ -59,11 +59,13 @@ jobs:
           mv * ${{ github.workspace }}
           cd ${{ github.workspace }}
 
-      - uses: docker://lpenz/ghaction-python-stdeb:0.1
+          python setup.py –with-dh-virtualenv bdist_deb
+
+      # - uses: docker://lpenz/ghaction-python-stdeb:0.1
+
       - run: |
           dpkg --info *.deb
           dpkg --contents *.deb
-
 
       # - name: Assemble Debian source package
       #   run: |
