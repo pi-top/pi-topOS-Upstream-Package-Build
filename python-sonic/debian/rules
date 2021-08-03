@@ -1,9 +1,0 @@
-#!/usr/bin/make -f
-
-export PYBUILD_NAME=psonic
-
-%:
-	dh $@ --buildsystem=pybuild
-
-override_dh_auto_test:
-	# Don't run the tests!
