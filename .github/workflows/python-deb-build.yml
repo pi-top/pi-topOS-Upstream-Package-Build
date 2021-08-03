@@ -106,7 +106,7 @@ jobs:
             !./artifacts/*.tar.xz
 
       # Upload experimental build
-      - uses: docker:/lpenz/ghaction-packagecloud:v0.3
+      - uses: docker://lpenz/ghaction-packagecloud:v0.3
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
         env:
