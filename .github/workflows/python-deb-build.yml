@@ -43,9 +43,7 @@ jobs:
       - name: Fix python-sonic source
         if: matrix.package == 'python-sonic'
         run: |
-          # Fix incorrect file path
-          sed -i "s/README.txt/README.rst" setup.py
-          # Remove setup dependency
+          sed -i "s/README.txt/README.rst/1" setup.py
           sed -i "/pytest-runner/d" setup.py
 
       - name: Assemble Debian source package
