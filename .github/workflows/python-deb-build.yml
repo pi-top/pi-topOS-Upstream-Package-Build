@@ -28,7 +28,7 @@ jobs:
         run: |
           pip install stdeb
           # system dependencies
-          sudo apt install -y debhelper python3-all
+          sudo apt install -y debhelper python3-all dh-python
 
           # mkdir -p ${{ matrix.package }}
           # cd ./${{ matrix.package }}
