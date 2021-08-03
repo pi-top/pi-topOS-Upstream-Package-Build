@@ -59,7 +59,13 @@ jobs:
           mv * ${{ github.workspace }}
           cd ${{ github.workspace }}
 
-          python setup.py –with-dh-virtualenv bdist_deb
+      - name: Build with virtualenv
+        if: matrix.package == 'python-sonic'
+        run: python setup.py –with-dh-virtualenv bdist_deb
+
+      - name: Build without virtualenv
+        if: matrix.package != 'python-sonic'
+        run: python setup.py bdist_deb
 
       # - uses: docker://lpenz/ghaction-python-stdeb:0.1
 
