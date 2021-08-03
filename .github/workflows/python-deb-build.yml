@@ -41,7 +41,7 @@ jobs:
 
       # https://github.com/gkvoelkl/python-sonic/pull/32
       - name: Fix python-sonic source
-        if: matrix.package == "python-sonic"
+        if: matrix.package == 'python-sonic'
         run: |
           # Fix incorrect file path
           sed -i "s/README.txt/README.rst" setup.py
