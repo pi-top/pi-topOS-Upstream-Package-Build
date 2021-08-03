@@ -30,28 +30,31 @@ jobs:
           # system dependencies
           sudo apt install -y debhelper python3-all dh-python
 
-          # mkdir -p ${{ matrix.package }}
-          # cd ./${{ matrix.package }}
+          mkdir -p .tmp
 
       - name: Download source
         run: |
+          cd .tmp
           pypi-download ${{ matrix.package }}
           tar xvzf *${{ matrix.package }}*.tar.gz
           rm *${{ matrix.package }}*.tar.gz
-          cd ./*${{ matrix.package }}*
 
       # https://github.com/gkvoelkl/python-sonic/pull/32
       - name: Fix python-sonic source
         if: matrix.package == 'python-sonic'
         run: |
+          cd ~/.tmp/*${{ matrix.package }}*
           sed -i "s/README.txt/README.rst/1" setup.py
           sed -i "/pytest-runner/d" setup.py
 
       - name: Assemble Debian source package
         run: |
+          cd ~/.tmp/*${{ matrix.package }}*/de
           python setup.py --command-packages=stdeb.command sdist_dsc
 
-          cd deb_dist/*${{ matrix.package }}*
+          mv deb_dist/*${{ matrix.package }}*/* ~
+          cd ~
+          rm -rf .tmp
 
       # We only want ARM builds. This step is here to provide the option of
       # using a strategy matrix if additional builds (e.g. `arm64`) are desired
