@@ -61,7 +61,7 @@ jobs:
 
       - name: Build with virtualenv
         if: matrix.package == 'python-sonic'
-        run: python setup.py --with-dh-virtualenv bdist_deb
+        run: python setup.py sdist_dsc --with-dh-virtualenv bdist_deb
 
       - name: Build without virtualenv
         if: matrix.package != 'python-sonic'
