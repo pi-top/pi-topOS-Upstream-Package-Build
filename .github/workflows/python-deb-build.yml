@@ -46,7 +46,7 @@ jobs:
           # Fix incorrect file path
           sed -i "s/README.txt/README.rst" setup.py
           # Remove setup dependency
-          sed -i "s/'pytest-runner',//" setup.py
+          sed -i "/pytest-runner/d" setup.py
 
       - name: Assemble Debian source package
         run: |
