@@ -24,7 +24,7 @@ jobs:
       matrix:
         package: ["imutils", "pynput", "python-osc", "python-sonic", "PyV4L2Camera"]
     steps:
-      - name: Prepare for Debian package build
+      - name: Install stdeb and dependencies
         run: |
           pip install stdeb
           # system dependencies
@@ -33,11 +33,23 @@ jobs:
           # mkdir -p ${{ matrix.package }}
           # cd ./${{ matrix.package }}
 
+      - name: Download source
+        run: |
           pypi-download ${{ matrix.package }}
-
           tar xvzf *${{ matrix.package }}*.tar.gz
           rm *${{ matrix.package }}*.tar.gz
 
+      # https://github.com/gkvoelkl/python-sonic/pull/32
+      - name: Fix python-sonic source
+        if: matrix.package == "python-sonic"
+        run: |
+          # Fix incorrect file path
+          sed -i "s/README.txt/README.rst" setup.py
+          # Remove setup dependency
+          sed -i "s/'pytest-runner',//" setup.py
+
+      - name: Assemble Debian source package
+        run: |
           cd ./*${{ matrix.package }}*
           python setup.py --command-packages=stdeb.command sdist_dsc
 
