@@ -32,7 +32,6 @@ jobs:
 
           mkdir -p ${{ github.workspace}}/.tmp
 
-
       - name: Download source
         run: |
           cd ${{ github.workspace}}/.tmp
@@ -55,7 +54,7 @@ jobs:
 
           mv deb_dist/*${{ matrix.package }}*/* ${{ github.workspace}}/
           cd ${{ github.workspace}}/
-          rm -rf ${{ github.workspace}}/.eggs
+          rm ${{ github.workspace}}/${{ matrix.package }}_*.orig.tar.gz
           rm -rf ${{ github.workspace}}/.tmp
           ls -lR
 
