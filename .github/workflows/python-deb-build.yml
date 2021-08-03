@@ -55,7 +55,8 @@ jobs:
 
           mv deb_dist/*${{ matrix.package }}*/* ${{ github.workspace}}/
           cd ${{ github.workspace}}/
-          rm -rf .tmp
+          rm -rf ${{ github.workspace}}/.eggs
+          rm -rf ${{ github.workspace}}/.tmp
 
       # We only want ARM builds. This step is here to provide the option of
       # using a strategy matrix if additional builds (e.g. `arm64`) are desired
