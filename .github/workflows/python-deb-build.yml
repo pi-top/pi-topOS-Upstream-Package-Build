@@ -27,7 +27,7 @@ jobs:
       matrix:
         # Also "pynput", "dlib" and "onnxruntime"
         # --> preferably get from wheel
-        package: ["imutils", "python-osc", "python-sonic", "PyV4L2Camera"]
+        package: ["imutils", "python-sonic", "PyV4L2Camera"]
     steps:
       - name: Install stdeb and dependencies
         run: |
@@ -51,6 +51,7 @@ jobs:
           cd ${{ github.workspace }}/.tmp/${{ matrix.package }}-*
           sed -i "s/README.txt/README.rst/1" setup.py
           sed -i "/pytest-runner/d" setup.py
+          pip install python-osc
 
       - name: Move files to workspace
         run: |
