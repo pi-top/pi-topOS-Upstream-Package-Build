@@ -38,6 +38,7 @@ jobs:
           pypi-download ${{ matrix.package }}
           tar xvzf *${{ matrix.package }}*.tar.gz
           rm *${{ matrix.package }}*.tar.gz
+          cd ./*${{ matrix.package }}*
 
       # https://github.com/gkvoelkl/python-sonic/pull/32
       - name: Fix python-sonic source
@@ -48,7 +49,6 @@ jobs:
 
       - name: Assemble Debian source package
         run: |
-          cd ./*${{ matrix.package }}*
           python setup.py --command-packages=stdeb.command sdist_dsc
 
           cd deb_dist/*${{ matrix.package }}*
