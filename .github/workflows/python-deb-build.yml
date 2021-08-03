@@ -69,23 +69,7 @@ jobs:
         if: matrix.package != 'python-sonic'
         run: python setup.py --command-packages=stdeb.command sdist_dsc --with-python2=False --with-python3=True bdist_deb
 
-      - run: |
-          cp -l ./deb_dist/*.deb .
-          for deb in *.deb; do
-              dpkg --info "$deb"
-              dpkg --contents "$deb"
-          done
-
-      # - name: Assemble Debian source package
-      #   run: |
-      #     cd ${{ github.workspace }}/.tmp/*${{ matrix.package }}*
-      #     python setup.py --command-packages=stdeb.command sdist_dsc
-
-      #     mv deb_dist/*${{ matrix.package }}*/* ${{ github.workspace }}/
-      #     cd ${{ github.workspace }}/
-      #     rm ${{ github.workspace }}/${{ matrix.package }}_*.orig.tar.gz
-      #     rm -rf ${{ github.workspace }}/.tmp
-      #     ls -lR
+      - run: mv deb_dist artifacts
 
       # # We only want ARM builds. This step is here to provide the option of
       # # using a strategy matrix if additional builds (e.g. `arm64`) are desired
@@ -99,46 +83,35 @@ jobs:
       #     fi
       #     echo "TARGET_ARCHITECTURE=${target_architecture}" >> $GITHUB_ENV
 
-      # - name: Build Debian package
-      #   uses: pi-top/debian-package-build-action@master
-      #   with:
-      #     target_architecture: ${{ env.TARGET_ARCHITECTURE }}
-      #     docker_image: ${{ env.DEB_BUILD_DOCKER_IMAGE }}:${{ env.DEB_BUILD_DOCKER_TAG }}
-      #     build_directory: ./artifacts
-      #     # Optional, repo-specific build environment variables
-      #     additional_env: |
-      #       DATA="${{ secrets.DATA }}"
-      #       TLS_KEY="${{ secrets.TLS_KEY }}"
+      - name: Generate artifact name
+        run: |
+          echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find . -name "*.dsc")")" >> $GITHUB_ENV
 
-      # - name: Generate artifact name
-      #   run: |
-      #     echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find . -name "*.dsc")")" >> $GITHUB_ENV
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARTIFACT_PREFIX }}.deb
+          path: ./artifacts/*.deb
 
-      # - name: Upload artifacts
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: ${{ env.ARTIFACT_PREFIX }}.deb
-      #     path: ./artifacts/*.deb
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARTIFACT_PREFIX }}.deb-src
+          path: ./artifacts/*.tar.xz
 
-      # - name: Upload artifacts
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: ${{ env.ARTIFACT_PREFIX }}.deb-src
-      #     path: ./artifacts/*.tar.xz
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARTIFACT_PREFIX }}.metadata
+          path: |
+            ./artifacts/**
+            !./artifacts/*.deb
+            !./artifacts/*.tar.xz
 
-      # - name: Upload artifacts
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: ${{ env.ARTIFACT_PREFIX }}.metadata
-      #     path: |
-      #       ./artifacts/**
-      #       !./artifacts/*.deb
-      #       !./artifacts/*.tar.xz
-
-      # # Upload experimental build
-      # - uses: docker://lpenz/ghaction-packagecloud:v0.3
-      #   with:
-      #     repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
-      #   env:
-      #     PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
-      #     files: ./deb/*.dsc
+      # Upload experimental build
+      - uses: docker://lpenz/ghaction-packagecloud:v0.3
+        with:
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+          files: ./deb/*.dsc
