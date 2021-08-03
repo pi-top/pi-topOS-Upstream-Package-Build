@@ -25,7 +25,9 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        package: ["imutils", "python-osc", "python-sonic", "PyV4L2Camera"]  # "pynput"
+        # Also "pynput", "dlib" and "onnxruntime"
+        # --> preferably get from wheel
+        package: ["imutils", "python-osc", "python-sonic", "PyV4L2Camera"]
     steps:
       - name: Install stdeb and dependencies
         run: |
