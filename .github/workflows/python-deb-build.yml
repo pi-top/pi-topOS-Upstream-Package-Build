@@ -32,9 +32,10 @@ jobs:
 
           mkdir -p .tmp
 
+
       - name: Download source
         run: |
-          cd .tmp
+          cd ~/.tmp
           pypi-download ${{ matrix.package }}
           tar xvzf *${{ matrix.package }}*.tar.gz
           rm *${{ matrix.package }}*.tar.gz
@@ -43,7 +44,7 @@ jobs:
       - name: Fix python-sonic source
         if: matrix.package == 'python-sonic'
         run: |
-          cd ~/.tmp/*${{ matrix.package }}*
+          cd ~/.tmp/${{ matrix.package }}-*
           sed -i "s/README.txt/README.rst/1" setup.py
           sed -i "/pytest-runner/d" setup.py
 
