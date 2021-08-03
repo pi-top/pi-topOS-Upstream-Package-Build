@@ -63,11 +63,11 @@ jobs:
 
       - name: Build with virtualenv
         if: matrix.package == 'python-sonic'
-        run: python setup.py --command-packages=stdeb.command sdist_dsc --with-dh-virtualenv bdist_deb
+        run: python setup.py --command-packages=stdeb.command sdist_dsc --with-python2=False --with-python3=True --with-dh-virtualenv bdist_deb
 
       - name: Build without virtualenv
         if: matrix.package != 'python-sonic'
-        run: python setup.py --command-packages=stdeb.command bdist_deb
+        run: python setup.py --command-packages=stdeb.command sdist_dsc --with-python2=False --with-python3=True bdist_deb
 
       - run: |
           cp -l ./deb_dist/*.deb .
