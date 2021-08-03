@@ -30,18 +30,18 @@ jobs:
           # system dependencies
           sudo apt install -y debhelper python3-all
 
-          # mkdir -p ${package}
-          # cd ./${package}
+          # mkdir -p ${{ matrix.package }}
+          # cd ./${{ matrix.package }}
 
-          pypi-download ${package}
+          pypi-download ${{ matrix.package }}
 
-          tar xvzf *${package}*.tar.gz
-          rm *${package}*.tar.gz
+          tar xvzf *${{ matrix.package }}*.tar.gz
+          rm *${{ matrix.package }}*.tar.gz
 
-          cd ./*${package}*
+          cd ./*${{ matrix.package }}*
           python setup.py --command-packages=stdeb.command sdist_dsc
 
-          cd deb_dist/*${package}*
+          cd deb_dist/*${{ matrix.package }}*
 
       # We only want ARM builds. This step is here to provide the option of
       # using a strategy matrix if additional builds (e.g. `arm64`) are desired
