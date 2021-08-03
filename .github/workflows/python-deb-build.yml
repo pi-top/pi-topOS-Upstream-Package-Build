@@ -49,7 +49,7 @@ jobs:
 
       - name: Assemble Debian source package
         run: |
-          cd ~/.tmp/*${{ matrix.package }}*/de
+          cd ~/.tmp/*${{ matrix.package }}*
           python setup.py --command-packages=stdeb.command sdist_dsc
 
           mv deb_dist/*${{ matrix.package }}*/* ~
