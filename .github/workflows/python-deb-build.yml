@@ -33,7 +33,7 @@ jobs:
         run: |
           pip install stdeb
           # system dependencies
-          sudo apt install -y debhelper python3-all-dev dh-python python3-virtualenv
+          sudo apt install -y debhelper python3-all-dev dh-python python3-virtualenv dh-virtualenv
 
           mkdir -p ${{ github.workspace }}/.tmp
 
