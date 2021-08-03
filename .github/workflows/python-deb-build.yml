@@ -22,7 +22,7 @@ env:
 
 jobs:
   build-debian-package:
-    runs-on: ubuntu-20.10
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         # Also "pynput", "dlib" and "onnxruntime"
@@ -33,6 +33,8 @@ jobs:
         run: |
           pip install stdeb
           # system dependencies
+          sudo add-apt-repository ppa:jyrki-pulliainen/dh-virtualenv
+          sudo apt-get update
           sudo apt install -y debhelper python3-all-dev dh-python python3-virtualenv dh-virtualenv
 
           mkdir -p ${{ github.workspace }}/.tmp
