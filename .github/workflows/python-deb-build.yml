@@ -24,22 +24,24 @@ jobs:
       matrix:
         package: ["imutils", "pynput", "python-osc", "python-sonic", "PyV4L2Camera"]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2.3.4
-
       - name: Prepare for Debian package build
         run: |
           pip install stdeb
+          # system dependencies
+          sudo apt install -y debhelper python3-all
 
-          mkdir -p ${{ matrix.package }}
-          cd ./${{ matrix.package }}
+          # mkdir -p ${package}
+          # cd ./${package}
 
-          pypi-download ${{ matrix.package }}
-          py2dsc *${{ matrix.package }}*.tar.gz
-          rm *${{ matrix.package }}*.tar.gz
+          pypi-download ${package}
 
-          cd ./*${{ matrix.package }}*
+          tar xvzf *${package}*.tar.gz
+          rm *${package}*.tar.gz
+
+          cd ./*${package}*
           python setup.py --command-packages=stdeb.command sdist_dsc
+
+          cd deb_dist/*${package}*
 
       # We only want ARM builds. This step is here to provide the option of
       # using a strategy matrix if additional builds (e.g. `arm64`) are desired
