@@ -1,0 +1,17 @@
+notify-send.sh (1.2-3) buster; urgency=medium
+
+  * Build package in CI
+
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 02 Jun 2021 11:20:04 -0400
+
+notify-send.sh (1.2-2) buster; urgency=medium
+
+  * Drop .sh file suffix to allow it to work as a drop-in replacement
+
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 02 Jun 2021 15:14:07 +0100
+
+notify-send.sh (1.2-1) buster; urgency=medium
+
+  * Debianize notify-send.sh
+
+ -- pi-top <deb-maintainers@pi-top.com>  Tue, 25 May 2021 20:53:44 +0100

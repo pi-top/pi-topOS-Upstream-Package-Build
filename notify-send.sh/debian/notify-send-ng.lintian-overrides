@@ -1,0 +1,4 @@
+notify-send-ng: no-manual-page usr/bin/notify-action.sh
+notify-send-ng: no-manual-page usr/bin/notify-send
+# '.sh' file suffix is kept to avoid patching the upstream source
+notify-send-ng: script-with-language-extension usr/bin/notify-action.sh

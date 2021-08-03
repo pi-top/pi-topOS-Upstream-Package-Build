@@ -1,0 +1,2 @@
+# Upstream source has incorrect file permissions
+python3-sonic: executable-not-elf-or-script usr/lib/python3/dist-packages/python_sonic-0.4.1.egg-info/*
