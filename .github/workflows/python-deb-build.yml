@@ -35,11 +35,11 @@ jobs:
           # system dependencies
           sudo apt install -y debhelper python3-all-dev dh-python
 
-          mkdir -p ${{ github.workspace}}/.tmp
+          mkdir -p ${{ github.workspace }}/.tmp
 
       - name: Download source
         run: |
-          cd ${{ github.workspace}}/.tmp
+          cd ${{ github.workspace }}/.tmp
           pypi-download ${{ matrix.package }}
           tar xvzf *${{ matrix.package }}*.tar.gz
           rm *${{ matrix.package }}*.tar.gz
@@ -48,11 +48,15 @@ jobs:
       - name: Fix python-sonic source
         if: matrix.package == 'python-sonic'
         run: |
-          cd ${{ github.workspace}}/.tmp/${{ matrix.package }}-*
+          cd ${{ github.workspace }}/.tmp/${{ matrix.package }}-*
           sed -i "s/README.txt/README.rst/1" setup.py
           sed -i "/pytest-runner/d" setup.py
-          mv * ${{ github.workspace}}
-          cd ${{ github.workspace}}
+
+      - name: Move files to workspace
+        run: |
+          cd ${{ github.workspace }}/.tmp/${{ matrix.package }}-*
+          mv * ${{ github.workspace }}
+          cd ${{ github.workspace }}
 
       - uses: docker://lpenz/ghaction-python-stdeb:0.1
       - run: |
@@ -62,13 +66,13 @@ jobs:
 
       # - name: Assemble Debian source package
       #   run: |
-      #     cd ${{ github.workspace}}/.tmp/*${{ matrix.package }}*
+      #     cd ${{ github.workspace }}/.tmp/*${{ matrix.package }}*
       #     python setup.py --command-packages=stdeb.command sdist_dsc
 
-      #     mv deb_dist/*${{ matrix.package }}*/* ${{ github.workspace}}/
-      #     cd ${{ github.workspace}}/
-      #     rm ${{ github.workspace}}/${{ matrix.package }}_*.orig.tar.gz
-      #     rm -rf ${{ github.workspace}}/.tmp
+      #     mv deb_dist/*${{ matrix.package }}*/* ${{ github.workspace }}/
+      #     cd ${{ github.workspace }}/
+      #     rm ${{ github.workspace }}/${{ matrix.package }}_*.orig.tar.gz
+      #     rm -rf ${{ github.workspace }}/.tmp
       #     ls -lR
 
       # # We only want ARM builds. This step is here to provide the option of
