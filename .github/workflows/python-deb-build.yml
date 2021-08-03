@@ -57,6 +57,7 @@ jobs:
           cd ${{ github.workspace}}/
           rm -rf ${{ github.workspace}}/.eggs
           rm -rf ${{ github.workspace}}/.tmp
+          ls -lR
 
       # We only want ARM builds. This step is here to provide the option of
       # using a strategy matrix if additional builds (e.g. `arm64`) are desired
