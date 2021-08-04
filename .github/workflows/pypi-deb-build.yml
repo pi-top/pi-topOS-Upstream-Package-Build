@@ -52,7 +52,7 @@ jobs:
           pip install stdeb
 
       - name: Download source
-        if: matrix.package == "python-v4l2capture"
+        if: matrix.package == 'python-v4l2capture'
         run: |
           tarball_file_name="python-v4l2capture-12.tar.gz"
           wget https://test-files.pythonhosted.org/packages/0d/7b/8e54abaed7e903a88231e5dfb1ca933401d28460bd0126b352cfdc0e14d6/${tarball_file_name}
@@ -61,7 +61,7 @@ jobs:
 
 
       - name: Download source
-        if: matrix.package != "python-v4l2capture"
+        if: matrix.package != 'python-v4l2capture'
         run: |
           tarball_file_name="$(pypi-download ${{ matrix.package }} | awk '{print $2}')"
           echo "TARBALL_FILE_NAME=${tarball_file_name}" >> $GITHUB_ENV
