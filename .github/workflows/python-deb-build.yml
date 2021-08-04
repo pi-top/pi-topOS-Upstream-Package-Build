@@ -68,15 +68,15 @@ jobs:
             --workdir=${{ github.workspace }} \
             --platform ${{ env.ARCH }} \
             ${{ env.OS }}:${{ env.DISTRO }} \
-            sudo apt-get update && \
-              sudo apt-get install -y \
+            "apt-get update && \
+              apt-get install -y \
                 debhelper \
                 dh-python \
                 libv4l-dev \
                 python3-all-dev \
                 python3-pip && \
               pip3 install stdeb && \
-              py2dsc-deb ${{ env.TARBALL_FILE_NAME }}
+              py2dsc-deb ${{ env.TARBALL_FILE_NAME }}"
 
       - run: mv deb_dist artifacts
 
