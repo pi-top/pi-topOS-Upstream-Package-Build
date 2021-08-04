@@ -31,13 +31,9 @@ jobs:
         # TODO: fix "python-sonic" requiring "python-osc"
         package: ["imutils", "pynput", "python-sonic", "PyV4L2Camera"]
     steps:
-      - name: Install stdeb and dependencies
+      - name: Install stdeb
         run: |
           pip install stdeb
-          # system dependencies
-          sudo add-apt-repository ppa:jyrki-pulliainen/dh-virtualenv
-          sudo apt-get update
-          sudo apt install -y debhelper python3-all-dev dh-python python3-virtualenv dh-virtualenv libv4l-dev
 
           mkdir -p ${{ github.workspace }}/.tmp
 
@@ -55,7 +51,6 @@ jobs:
           cd ${{ github.workspace }}/.tmp/${{ matrix.package }}-*
           sed -i "s/README.txt/README.rst/1" setup.py
           sed -i "/pytest-runner/d" setup.py
-          pip install python-osc
 
       - name: Move files to workspace
         run: |
@@ -63,12 +58,37 @@ jobs:
           mv * ${{ github.workspace }}
           cd ${{ github.workspace }}
 
-      # TODO: run on Docker with armhf
-      - name: Build
-        run: python setup.py \
-          --command-packages=stdeb.command \
-          sdist_dsc --with-python2=False --with-python3=True \
-          bdist_deb
+      - name: Build in ARM Docker container
+        run: |
+          docker create \
+            --name container \
+            --volume ${{ github.workspace }}:${{ github.workspace }} \
+            --workdir=${{ github.workspace }} \
+            --tty \
+            --platform linux/arm/v7 \
+            debian:unstable \
+            sleep "inf"
+
+          docker start container
+
+          docker exec container \
+            pip install stdeb
+
+          docker exec container \
+            sudo apt-get update && \
+            sudo apt install -y \
+              debhelper \
+              dh-python \
+              dh-virtualenv \
+              libv4l-dev \
+              python3-all-dev \
+              python3-virtualenv
+
+          docker exec container \
+            python setup.py \
+              --command-packages=stdeb.command \
+              sdist_dsc --with-python2=False --with-python3=True \
+              bdist_deb
 
       - run: mv deb_dist artifacts
 
