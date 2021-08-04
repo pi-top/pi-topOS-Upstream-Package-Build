@@ -39,8 +39,9 @@ jobs:
 
       - name: Download source
         run: |
-          echo "PY_PACKAGE_SRC_NAME=$(pypi-download ${{ matrix.package }} | awk '{print $2}' | sed "s/.tar.gz//")" >> $GITHUB_ENV
-          echo "TARBALL_FILE_NAME=${{ env.PY_PACKAGE_SRC_NAME }}.tar.gz" >> $GITHUB_ENV
+          tarball_file_name="$(pypi-download ${{ matrix.package }} | awk '{print $2}')"
+          echo "TARBALL_FILE_NAME=${tarball_file_name}" >> $GITHUB_ENV
+          echo "PY_PACKAGE_SRC_NAME=$(echo ${tarball_file_name} | sed 's/.tar.gz//')" >> $GITHUB_ENV
 
       # https://github.com/gkvoelkl/python-sonic/pull/32
       - name: Fix python-sonic source
@@ -64,7 +65,6 @@ jobs:
           docker run --rm --privileged tonistiigi/binfmt --install all
 
           docker run -i \
-            --name deb-build \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
             --platform ${{ env.ARCH }} \
