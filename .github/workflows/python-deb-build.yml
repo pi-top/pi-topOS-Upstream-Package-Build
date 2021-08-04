@@ -60,6 +60,23 @@ jobs:
           rm ${{ env.TARBALL_FILE_NAME }}
           tar -czf ${{ env.TARBALL_FILE_NAME }} ./${{ env.PY_PACKAGE_SRC_NAME }}/*
 
+      # http://python3porting.com/cextensions.html#object-initialization
+      # v4l2capture source is not compatible with Python 3
+      - name: Fix v4l2capture source
+        if: matrix.package == 'v4l2capture'
+        run: |
+          # Extract
+          tar xvzf ${{ env.TARBALL_FILE_NAME }}
+
+          # Modify
+          cd ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}
+          sed -i "s/self->ob_type/Py_TYPE(self)/1" v4l2capture.c
+
+          # Repackage
+          cd ${{ github.workspace }}/
+          rm ${{ env.TARBALL_FILE_NAME }}
+          tar -czf ${{ env.TARBALL_FILE_NAME }} ./${{ env.PY_PACKAGE_SRC_NAME }}/*
+
       - name: Build in ARM Docker container
         run: |
           docker run --rm --privileged tonistiigi/binfmt --install all
