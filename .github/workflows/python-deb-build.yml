@@ -24,6 +24,7 @@ jobs:
   build-debian-package:
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         # Also "dlib" and "onnxruntime"
         # --> preferably get from wheel
