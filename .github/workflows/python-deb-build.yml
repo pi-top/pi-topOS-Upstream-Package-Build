@@ -75,27 +75,28 @@ jobs:
         run: |
           docker start container
 
-      - name: ARM Docker container - install stded
-        run: |
-          docker exec container \
-            pip install stdeb
-
       - name: ARM Docker container - install system dependencies
         run: |
           docker exec container \
-            sudo apt-get update && \
-            sudo apt install -y \
+            apt-get update && \
+            apt-get install -y \
               debhelper \
               dh-python \
               dh-virtualenv \
               libv4l-dev \
               python3-all-dev \
+              python3-pip \
               python3-virtualenv
+
+      - name: ARM Docker container - install stded
+        run: |
+          docker exec container \
+            pip3 install stdeb
 
       - name: ARM Docker container - build deb package
         run: |
           docker exec container \
-            python setup.py \
+            python3 setup.py \
               --command-packages=stdeb.command \
               sdist_dsc --with-python2=False --with-python3=True \
               bdist_deb
