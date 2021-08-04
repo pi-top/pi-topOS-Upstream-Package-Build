@@ -68,7 +68,7 @@ jobs:
             --workdir=${{ github.workspace }} \
             --tty \
             --platform ${{ env.ARCH }} \
-            ${{ env.OS }}/${{ env.DISTRO }}:latest \
+            ${{ env.OS }}:${{ env.DISTRO }} \
             sleep inf
 
       - name: Start ARM Docker container
