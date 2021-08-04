@@ -31,7 +31,7 @@ jobs:
         # --> preferably get from wheel
 
         # TODO: fix "python-sonic" requiring "python-osc"
-        package: ["imutils", "pynput", "python-sonic", "PyV4L2Camera"]
+        package: ["imutils", "python-sonic", "PyV4L2Camera"]
     steps:
       - name: Install stdeb
         run: |
