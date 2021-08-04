@@ -49,7 +49,7 @@ jobs:
           tar xvzf ${{ env.TARBALL_FILE_NAME }}
 
           # Modify
-          cd ${{ github.workspace }}/.tmp/${{ matrix.package }}-*
+          cd ${{ github.workspace }}/${{ matrix.package }}-*
           sed -i "s/README.txt/README.rst/1" setup.py
           sed -i "/pytest-runner/d" setup.py
 
