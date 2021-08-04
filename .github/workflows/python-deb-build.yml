@@ -40,13 +40,14 @@ jobs:
       - name: Download source
         run: |
           echo "PY_PACKAGE_SRC_NAME=$(pypi-download ${{ matrix.package }} | awk '{print $2}' | sed "s/.tar.gz//")" >> $GITHUB_ENV
+          echo "TARBALL_FILE_NAME=${{ env.PY_PACKAGE_SRC_NAME }}.tar.gz" >> $GITHUB_ENV
 
       # https://github.com/gkvoelkl/python-sonic/pull/32
       - name: Fix python-sonic source
         if: matrix.package == 'python-sonic'
         run: |
           # Extract
-          tar xvzf ${{ env.PY_PACKAGE_SRC_NAME }}.tar.gz
+          tar xvzf ${{ env.TARBALL_FILE_NAME }}
 
           # Modify
           cd ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}
@@ -55,10 +56,10 @@ jobs:
 
           # Repackage
           cd ${{ github.workspace }}/
-          rm ${{ env.PY_PACKAGE_SRC_NAME }}.tar.gz
-          tar -czf ${{ env.PY_PACKAGE_SRC_NAME }}.tar.gz ./${{ env.PY_PACKAGE_SRC_NAME }}/*
+          rm ${{ env.TARBALL_FILE_NAME }}
+          tar -czf ${{ env.TARBALL_FILE_NAME }} ./${{ env.PY_PACKAGE_SRC_NAME }}/*
 
-      - name: Create ARM Docker container
+      - name: Build in ARM Docker container
         run: |
           docker run --rm --privileged tonistiigi/binfmt --install all
 
@@ -71,7 +72,7 @@ jobs:
             /bin/bash -s <<EOF
               apt-get update
               apt-get install -y debhelper dh-python libv4l-dev python3-all-dev python3-pip
-              pip3 install stdeb && py2dsc-deb ${{ env.PY_PACKAGE_SRC_NAME }}
+              pip3 install stdeb && py2dsc-deb ${{ env.TARBALL_FILE_NAME }}
           EOF
 
           mv deb_dist artifacts
