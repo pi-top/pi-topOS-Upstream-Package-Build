@@ -68,8 +68,8 @@ jobs:
             --workdir=${{ github.workspace }} \
             --platform ${{ env.ARCH }} \
             ${{ env.OS }}:${{ env.DISTRO }} \
-            apt-get update && \
-              apt-get install -y \
+            sudo apt-get update && \
+              sudo apt-get install -y \
                 debhelper \
                 dh-python \
                 libv4l-dev \
