@@ -1,4 +1,4 @@
-name: Debian Packaging for Python Packages
+name: Debian Packaging for Python Packages from PyPI
 
 on:
   push:
@@ -27,11 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Also "dlib" and "onnxruntime"
-        # --> preferably get from wheel
-
-        # TODO: fix "python-sonic" requiring "python-osc"
-        package: ["imutils", "python-sonic", "python-osc", "PyV4L2Camera", "v4l2capture"]
+        package: ["dlib", "imutils", "python-sonic", "python-osc", "v4l2capture"]
     steps:
       - name: Install stdeb
         run: |
@@ -53,15 +49,13 @@ jobs:
           # Modify
           cd ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}
           sed -i "s/README.txt/README.rst/1" setup.py
-          sed -i "/pytest-runner/d" setup.py
 
           # Repackage
           cd ${{ github.workspace }}/
           rm ${{ env.TARBALL_FILE_NAME }}
           tar -czf ${{ env.TARBALL_FILE_NAME }} ./${{ env.PY_PACKAGE_SRC_NAME }}/*
 
-      # http://python3porting.com/cextensions.html#object-initialization
-      # v4l2capture source is not compatible with Python 3
+      # TODO: use 'python-v4l2capture' after publishing
       - name: Fix v4l2capture source
         if: matrix.package == 'v4l2capture'
         run: |
