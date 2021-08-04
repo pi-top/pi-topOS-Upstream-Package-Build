@@ -63,7 +63,7 @@ jobs:
       - name: Create ARM Docker container
         run: |
           docker create \
-            --name container \
+            --name deb-build \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
             --tty \
@@ -73,11 +73,11 @@ jobs:
 
       - name: Start ARM Docker container
         run: |
-          docker start container
+          docker start deb-build
 
       - name: ARM Docker container - install system dependencies
         run: |
-          docker exec container \
+          docker exec deb-build \
             apt-get update && \
             apt-get install -y \
               debhelper \
@@ -90,12 +90,12 @@ jobs:
 
       - name: ARM Docker container - install stded
         run: |
-          docker exec container \
+          docker exec deb-build \
             pip3 install stdeb
 
       - name: ARM Docker container - build deb package
         run: |
-          docker exec container \
+          docker exec deb-build \
             python3 setup.py \
               --command-packages=stdeb.command \
               sdist_dsc --with-python2=False --with-python3=True \
