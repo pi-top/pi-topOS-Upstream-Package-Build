@@ -79,14 +79,12 @@ jobs:
           #   ${{ env.OS }}:${{ env.DISTRO }} \
           #   sleep inf
 
-      - name: Start ARM Docker container
+      - name: ARM Docker container - install system dependencies
         run: |
           docker ps -a
           docker start deb-build
           docker ps -a
-
-      - name: ARM Docker container - install system dependencies
-        run: |
+          sleep 1
           docker ps -a
           docker exec deb-build \
             apt-get update && \
