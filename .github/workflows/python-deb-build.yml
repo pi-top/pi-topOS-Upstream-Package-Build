@@ -81,13 +81,13 @@ jobs:
 
       - name: Start ARM Docker container
         run: |
-          docker ps
+          docker ps -a
           docker start deb-build
-          docker ps
+          docker ps -a
 
       - name: ARM Docker container - install system dependencies
         run: |
-          docker ps
+          docker ps -a
           docker exec deb-build \
             apt-get update && \
             apt-get install -y \
