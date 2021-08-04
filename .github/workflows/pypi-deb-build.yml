@@ -31,11 +31,15 @@ jobs:
         include:
           - package: "python-sonic"
             # https://github.com/gkvoelkl/python-sonic/pull/35
-            patch: "sed -i 's/README.txt/README.rst/1' setup.py"
+            # + fix dpkg build issue:
+            #     dpkg-source: info: local changes detected, the modified files are:
+            #      python-sonic-0.4.1/.eggs
+            patch: "sed -i 's/README.txt/README.rst/1' setup.py && sed -i '/pytest-runner/d' setup.py"
           - package: "dlib"
             deps: "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
           - package: "v4l2capture"
             deps: "libv4l-dev"
+            # https://github.com/davisking/dlib/issues/2409
             patch: "pip install pyclean && pyclean -v ."
 
     steps:
