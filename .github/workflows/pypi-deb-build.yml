@@ -39,7 +39,7 @@ jobs:
           echo "TARBALL_FILE_NAME=${tarball_file_name}" >> $GITHUB_ENV
           echo "PY_PACKAGE_SRC_NAME=$(echo ${tarball_file_name} | sed 's/.tar.gz//')" >> $GITHUB_ENV
 
-      # https://github.com/gkvoelkl/python-sonic/pull/33
+      # https://github.com/gkvoelkl/python-sonic/pull/35
       - name: Fix python-sonic source
         if: matrix.package == 'python-sonic'
         run: |
