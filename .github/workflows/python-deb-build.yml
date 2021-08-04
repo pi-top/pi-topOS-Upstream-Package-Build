@@ -58,7 +58,7 @@ jobs:
           mv * ${{ github.workspace }}
           cd ${{ github.workspace }}
 
-      - name: Build in ARM Docker container
+      - name: Create ARM Docker container
         run: |
           docker create \
             --name container \
@@ -69,11 +69,17 @@ jobs:
             debian:unstable \
             sleep "inf"
 
+      - name: Start ARM Docker container
+        run: |
           docker start container
 
+      - name: ARM Docker container - install stded
+        run: |
           docker exec container \
             pip install stdeb
 
+      - name: ARM Docker container - install system dependencies
+        run: |
           docker exec container \
             sudo apt-get update && \
             sudo apt install -y \
@@ -84,6 +90,8 @@ jobs:
               python3-all-dev \
               python3-virtualenv
 
+      - name: ARM Docker container - build deb package
+        run: |
           docker exec container \
             python setup.py \
               --command-packages=stdeb.command \
