@@ -39,8 +39,7 @@ jobs:
 
       - name: Download source
         run: |
-          pypi-download ${{ matrix.package }}
-          echo "TARBALL_FILE_NAME=$(find . -name "tar.gz")" >> $GITHUB_ENV
+          echo "TARBALL_FILE_NAME=$(pypi-download ${{ matrix.package }} | awk '{print $2}')" >> $GITHUB_ENV
 
       # https://github.com/gkvoelkl/python-sonic/pull/32
       - name: Fix python-sonic source
