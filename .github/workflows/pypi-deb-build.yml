@@ -39,7 +39,7 @@ jobs:
           echo "TARBALL_FILE_NAME=${tarball_file_name}" >> $GITHUB_ENV
           echo "PY_PACKAGE_SRC_NAME=$(echo ${tarball_file_name} | sed 's/.tar.gz//')" >> $GITHUB_ENV
 
-      # https://github.com/gkvoelkl/python-sonic/pull/32
+      # https://github.com/gkvoelkl/python-sonic/pull/33
       - name: Fix python-sonic source
         if: matrix.package == 'python-sonic'
         run: |
@@ -64,7 +64,8 @@ jobs:
 
           # Modify
           cd ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}
-          find . -name "*.pyc" | xargs rm
+          pip install pyclean
+          pyclean -v .
 
           # Repackage
           cd ${{ github.workspace }}/
