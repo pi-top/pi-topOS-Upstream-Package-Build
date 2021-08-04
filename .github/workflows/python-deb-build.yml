@@ -37,78 +37,48 @@ jobs:
         run: |
           pip install stdeb
 
-          mkdir -p ${{ github.workspace }}/.tmp
-
       - name: Download source
         run: |
-          cd ${{ github.workspace }}/.tmp
           pypi-download ${{ matrix.package }}
-          tar xvzf *${{ matrix.package }}*.tar.gz
-          rm *${{ matrix.package }}*.tar.gz
+          echo "TARBALL_FILE_NAME=$(find . -name "tar.gz")" >> $GITHUB_ENV
 
       # https://github.com/gkvoelkl/python-sonic/pull/32
       - name: Fix python-sonic source
         if: matrix.package == 'python-sonic'
         run: |
+          # Extract
+          tar xvzf ${{ env.TARBALL_FILE_NAME }}
+
+          # Modify
           cd ${{ github.workspace }}/.tmp/${{ matrix.package }}-*
           sed -i "s/README.txt/README.rst/1" setup.py
           sed -i "/pytest-runner/d" setup.py
 
-      - name: Move files to workspace
-        run: |
-          cd ${{ github.workspace }}/.tmp/${{ matrix.package }}-*
-          mv * ${{ github.workspace }}
-          cd ${{ github.workspace }}
+          # Repackage
+          cd ${{ github.workspace }}/.tmp
+          rm ${{ env.TARBALL_FILE_NAME }}
+          tar -czf ${{ env.TARBALL_FILE_NAME }} ./${{ matrix.package }}-*/*
 
       - name: Create ARM Docker container
         run: |
-          docker create \
+          docker run --rm --privileged tonistiigi/binfmt --install all
+
+          docker run -it \
             --name deb-build \
-            --volume $(pwd):$(pwd) \
-            --workdir=$(pwd) \
+            --volume ${{ github.workspace }}:${{ github.workspace }} \
+            --workdir=${{ github.workspace }} \
             --tty \
-            --platform linux/arm/v7 \
-            debian:bullseye \
-            sleep inf
-          # docker create \
-          #   --name deb-build \
-          #   --volume ${{ github.workspace }}:${{ github.workspace }} \
-          #   --workdir=${{ github.workspace }} \
-          #   --tty \
-          #   --platform ${{ env.ARCH }} \
-          #   ${{ env.OS }}:${{ env.DISTRO }} \
-          #   sleep inf
-
-      - name: ARM Docker container - install system dependencies
-        run: |
-          docker ps -a
-          docker start deb-build
-          docker ps -a
-          sleep 1
-          docker ps -a
-          docker exec deb-build \
+            --platform ${{ env.ARCH }} \
+            ${{ env.OS }}:${{ env.DISTRO }} \
             apt-get update && \
-            apt-get install -y \
-              debhelper \
-              dh-python \
-              dh-virtualenv \
-              libv4l-dev \
-              python3-all-dev \
-              python3-pip \
-              python3-virtualenv
-
-      - name: ARM Docker container - install stded
-        run: |
-          docker exec deb-build \
-            pip3 install stdeb
-
-      - name: ARM Docker container - build deb package
-        run: |
-          docker exec deb-build \
-            python3 setup.py \
-              --command-packages=stdeb.command \
-              sdist_dsc --with-python2=False --with-python3=True \
-              bdist_deb
+              apt-get install -y \
+                debhelper \
+                dh-python \
+                libv4l-dev \
+                python3-all-dev \
+                python3-pip && \
+              pip3 install stdeb && \
+              py2dsc-deb ${{ env.TARBALL_FILE_NAME }}
 
       - run: mv deb_dist artifacts
 
