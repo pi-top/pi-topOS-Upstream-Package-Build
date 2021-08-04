@@ -43,7 +43,7 @@ jobs:
             # https://github.com/davisking/dlib/issues/2409
             patch: "pip install pyclean && pyclean -v ."
 
-          - package: "v4l2capture"
+          - package: "python-v4l2capture"
             deps: "libv4l-dev"
 
     steps:
