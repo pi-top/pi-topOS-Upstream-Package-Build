@@ -72,7 +72,7 @@ jobs:
               apt-get update
               apt-get install -y debhelper dh-python libv4l-dev python3-all-dev python3-pip
               pip3 install stdeb && py2dsc-deb ${{ env.PY_PACKAGE_SRC_NAME }}
-        EOF
+          EOF
 
           mv deb_dist artifacts
 
