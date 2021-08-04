@@ -19,6 +19,7 @@ env:
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
   DISTRO: "bullseye"
+  ARCH: "linux/arm/v7"
 
 jobs:
   build-debian-package:
@@ -66,9 +67,9 @@ jobs:
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
             --tty \
-            --platform linux/arm/v7 \
-            debian:unstable \
-            sleep "inf"
+            --platform ${{ env.ARCH }} \
+            ${{ env.OS }}/${{ env.DISTRO }}:latest \
+            sleep inf
 
       - name: Start ARM Docker container
         run: |
