@@ -62,7 +62,7 @@ jobs:
         run: |
           docker run --rm --privileged tonistiigi/binfmt --install all
 
-          docker run -it \
+          docker run \
             --name deb-build \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
