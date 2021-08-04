@@ -64,12 +64,20 @@ jobs:
         run: |
           docker create \
             --name deb-build \
-            --volume ${{ github.workspace }}:${{ github.workspace }} \
-            --workdir=${{ github.workspace }} \
+            --volume $(pwd):$(pwd) \
+            --workdir=$(pwd) \
             --tty \
-            --platform ${{ env.ARCH }} \
-            ${{ env.OS }}:${{ env.DISTRO }} \
+            --platform linux/arm/v7 \
+            debian:bullseye \
             sleep inf
+          # docker create \
+          #   --name deb-build \
+          #   --volume ${{ github.workspace }}:${{ github.workspace }} \
+          #   --workdir=${{ github.workspace }} \
+          #   --tty \
+          #   --platform ${{ env.ARCH }} \
+          #   ${{ env.OS }}:${{ env.DISTRO }} \
+          #   sleep inf
 
       - name: Start ARM Docker container
         run: |
