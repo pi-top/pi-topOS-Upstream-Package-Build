@@ -39,24 +39,24 @@ jobs:
 
       - name: Download source
         run: |
-          echo "TARBALL_FILE_NAME=$(pypi-download ${{ matrix.package }} | awk '{print $2}')" >> $GITHUB_ENV
+          echo "PY_PACKAGE_SRC_NAME=$(pypi-download ${{ matrix.package }} | awk '{print $2}' | sed "s/.tar.gz//")" >> $GITHUB_ENV
 
       # https://github.com/gkvoelkl/python-sonic/pull/32
       - name: Fix python-sonic source
         if: matrix.package == 'python-sonic'
         run: |
           # Extract
-          tar xvzf ${{ env.TARBALL_FILE_NAME }}
+          tar xvzf ${{ env.PY_PACKAGE_SRC_NAME }}.tar.gz
 
           # Modify
-          cd ${{ github.workspace }}/${{ matrix.package }}-*
+          cd ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}
           sed -i "s/README.txt/README.rst/1" setup.py
           sed -i "/pytest-runner/d" setup.py
 
           # Repackage
-          cd ${{ github.workspace }}/.tmp
-          rm ${{ env.TARBALL_FILE_NAME }}
-          tar -czf ${{ env.TARBALL_FILE_NAME }} ./${{ matrix.package }}-*/*
+          cd ${{ github.workspace }}/
+          rm ${{ env.PY_PACKAGE_SRC_NAME }}.tar.gz
+          tar -czf ${{ env.PY_PACKAGE_SRC_NAME }}.tar.gz ./${{ env.PY_PACKAGE_SRC_NAME }}/*
 
       - name: Create ARM Docker container
         run: |
@@ -71,7 +71,7 @@ jobs:
             /bin/bash -s <<EOF
               apt-get update
               apt-get install -y debhelper dh-python libv4l-dev python3-all-dev python3-pip
-              pip3 install stdeb && py2dsc-deb ${{ env.TARBALL_FILE_NAME }}
+              pip3 install stdeb && py2dsc-deb ${{ env.PY_PACKAGE_SRC_NAME }}
             EOF
 
       - run: mv deb_dist artifacts
