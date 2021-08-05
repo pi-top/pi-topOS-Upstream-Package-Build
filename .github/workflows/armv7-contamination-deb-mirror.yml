@@ -29,6 +29,8 @@ jobs:
       - name: Download
         run: |
           echo "deb http://ftp.de.debian.org/debian bullseye main" | sudo tee /etc/apt/sources.list.d/debian-bullseye.list
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
           sudo apt-get update
           apt-get download ${{ matrix.package }}:armhf
 
