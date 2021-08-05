@@ -28,7 +28,9 @@ jobs:
     steps:
       - name: Download
         run: |
-          apt download ${{ matrix.package }}:armhf
+          echo "deb http://ftp.de.debian.org/debian bullseye main" | sudo tee /etc/apt/sources.list.d/debian-bullseye.list
+          sudo apt-get update
+          apt-get download ${{ matrix.package }}:armhf
 
       # Upload experimental build
       - uses: docker://lpenz/ghaction-packagecloud:v0.3
