@@ -19,7 +19,7 @@ env:
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
   DISTRO: "bullseye"
-  ARCH: "linux/arm/v7"
+  DOCKER_ARCH: "linux/arm/v7"
 
 jobs:
   build-debian-package:
@@ -79,7 +79,7 @@ jobs:
           docker run -i \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
-            --platform ${{ env.ARCH }} \
+            --platform ${{ env.DOCKER_ARCH }} \
             ${{ env.OS }}:${{ env.DISTRO }} \
             /bin/bash -s <<EOF
               apt-get update

@@ -1,0 +1,83 @@
+name: Debian Packaging for CPython Packages from pre-built Python wheels
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    branches:
+      - master
+  schedule:
+    # Run daily at midnight
+    - cron:  '0 0 * * *'
+
+env:
+  DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
+  DEB_BUILD_DOCKER_TAG: "bullseye-master"
+  CHANGELOG_AUTHOR_NAME: "pi-top"
+  CHANGELOG_AUTHOR_EMAIL: "deb-maintainers@pi-top.com"
+  PACKAGECLOUD_REPO: "experimental"
+  OS: "debian"
+  DISTRO: "bullseye"
+  ARCH: "linux/arm/v7"
+
+jobs:
+  build-debian-package:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ["onnxruntime"]
+    steps:
+      # TODO: use wheel2deb to build from wheels in src
+
+      - name: Build in ARM Docker container
+        run: |
+          docker run --rm --privileged tonistiigi/binfmt --install all
+
+          docker run -i \
+            --volume ${{ github.workspace }}:${{ github.workspace }} \
+            --workdir=${{ github.workspace }} \
+            --platform ${{ env.ARCH }} \
+            ${{ env.OS }}:${{ env.DISTRO }} \
+            /bin/bash -s <<EOF
+              apt-get update
+              apt-get install -y python3-apt apt-file dpkg-dev fakeroot build-essential devscripts debhelper
+              apt-file update
+              pip3 install wheel2deb && wheel2deb
+          EOF
+
+          # mv deb_dist artifacts
+
+      - name: Generate artifact name
+        run: |
+          echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find . -name "*.dsc")")" >> $GITHUB_ENV
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARTIFACT_PREFIX }}.deb
+          path: ./artifacts/*.deb
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARTIFACT_PREFIX }}.deb-src
+          path: ./artifacts/*.tar.xz
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARTIFACT_PREFIX }}.metadata
+          path: |
+            ./artifacts/**
+            !./artifacts/*.deb
+            !./artifacts/*.tar.xz
+
+      # Upload experimental build
+      - uses: docker://lpenz/ghaction-packagecloud:v0.3
+        with:
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+          files: ./deb/*.dsc

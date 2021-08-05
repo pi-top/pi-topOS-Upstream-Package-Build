@@ -24,12 +24,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        repo: ["AndrewFromMelbourne/raspi2png", "JoseExposito/touchegg", "JoseExposito/touche"]
+        repo: ["JoseExposito/touchegg"]
+        include:
+          - package: "AndrewFromMelbourne/raspi2png"
+            patch: "sed -i 's/libpng12/libpng/g' debian/control"
+
+          - package: "JoseExposito/touche"
+            patch: "sed -i 's/npm (>= 3)/npm/g' debian/control"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.3.4
         with:
           repository: ${{ matrix.repo }}
+
+      - name: Fix source
+        if: matrix.patch != ''
+        run: ${{ matrix.patch }}
 
       # We only want ARM builds. This step is here to provide the option of
       # using a strategy matrix if additional builds (e.g. `arm64`) are desired
