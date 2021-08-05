@@ -1,6 +1,9 @@
-name: touche and touchegg Debian Package Build
+name: Mirroring armv7 Contaminated Debian Packages
 
 on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
     branches:
       - master
@@ -9,10 +12,8 @@ on:
     - cron:  '0 0 * * *'
 
 env:
-  DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
-  DEB_BUILD_DOCKER_TAG: "bullseye-master"
-  CHANGELOG_AUTHOR_NAME: "pi-top"
-  CHANGELOG_AUTHOR_EMAIL: "deb-maintainers@pi-top.com"
+  QT5_DEB_VERSION: "5.15.2+dfsg-3"
+  DEB_ARCH: "armhf"
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
   DISTRO: "bullseye"
@@ -20,27 +21,15 @@ env:
 jobs:
   build-debian-package:
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        repo: ["AndrewFromMelbourne/raspi2png", "JoseExposito/touchegg", "JoseExposito/touche"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.3.4
-
-      - name: Check if upstream version is newer
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends devscripts
-          uscan --verbose
-
-      - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.3
-
-      - name: Add changelog entry for latest snapshot version
-        uses: pi-top/git-debian-changelog-bump-action@master
         with:
-          release: false
-          author_name: ${{ env.CHANGELOG_AUTHOR_NAME }}
-          author_email: ${{ env.CHANGELOG_AUTHOR_EMAIL }}
-          snapshot_number: ${{ steps.version.outputs.distance }}
-          since: ${{ steps.version.outputs.tag_latest }}
+          repository: ${{ matrix.repo }}
 
       # We only want ARM builds. This step is here to provide the option of
       # using a strategy matrix if additional builds (e.g. `arm64`) are desired
