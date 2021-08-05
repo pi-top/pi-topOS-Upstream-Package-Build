@@ -12,8 +12,8 @@ on:
     - cron:  '0 0 * * *'
 
 env:
-  QT5_DEB_VERSION: "5.15.2+dfsg-3"
-  DEB_ARCH: "armhf"
+  DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
+  DEB_BUILD_DOCKER_TAG: "bullseye-master"
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
   DISTRO: "bullseye"
