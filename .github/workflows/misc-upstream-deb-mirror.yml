@@ -35,7 +35,7 @@ jobs:
             patch: "sed -i 's/focal/bullseye/g' debian/changelog"
 
     steps:
-      - uses: thebritican/fetch-latest-release@v1
+      - uses: thebritican/fetch-latest-release@v2.0.0
         with:
           repo_path: ${{ matrix.repo }}
 
