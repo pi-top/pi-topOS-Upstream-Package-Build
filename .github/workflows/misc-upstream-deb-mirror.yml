@@ -35,9 +35,16 @@ jobs:
             patch: "sed -i 's/focal/bullseye/g' debian/changelog"
 
     steps:
-      - uses: thebritican/fetch-latest-release@v2.0.0
+      - id: last_release
+        uses: thebritican/fetch-latest-release@v2.0.0
         with:
           repo_path: ${{ matrix.repo }}
+
+      - name: Checkout code
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ${{ matrix.repo }}
+          ref: ${{ steps.last_release.outputs.tag_name }}
 
       - name: Fix source
         if: matrix.patch != ''
