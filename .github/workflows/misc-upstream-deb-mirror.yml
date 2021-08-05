@@ -26,25 +26,36 @@ jobs:
       matrix:
         include:
           - repo: "AndrewFromMelbourne/raspi2png"
+            use_release: "false"
             patch: "sed -i 's/libpng12/libpng/g' debian/control"
 
           - repo: "JoseExposito/touche"
+            use_release: "true"
             patch: "sed -i 's/npm (>= 3)/npm/g' debian/control"
 
           - repo: "JoseExposito/touchegg"
+            use_release: "true"
             patch: "sed -i 's/focal/bullseye/g' debian/changelog"
 
     steps:
       - id: last_release
+        if: matrix.use_release == 'true'
         uses: thebritican/fetch-latest-release@v2.0.0
         with:
           repo_path: ${{ matrix.repo }}
 
-      - name: Checkout code
+      - name: Checkout last release
+        if: matrix.use_release == 'true'
         uses: actions/checkout@v2.3.4
         with:
           repository: ${{ matrix.repo }}
           ref: ${{ steps.last_release.outputs.tag_name }}
+
+      - name: Checkout last commit
+        if: matrix.use_release != 'true'
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ${{ matrix.repo }}
 
       - name: Fix source
         if: matrix.patch != ''
