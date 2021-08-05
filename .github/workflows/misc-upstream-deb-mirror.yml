@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     branches:
       - master
-  schedule:
-    # Run daily at midnight
-    - cron:  '0 0 * * *'
+  # schedule:
+  #   # Run daily at midnight
+  #   - cron:  '0 0 * * *'
 
 env:
   DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
@@ -24,13 +24,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        repo: ["JoseExposito/touchegg"]
         include:
-          - package: "AndrewFromMelbourne/raspi2png"
+          - repo: "AndrewFromMelbourne/raspi2png"
             patch: "sed -i 's/libpng12/libpng/g' debian/control"
 
-          - package: "JoseExposito/touche"
+          - repo: "JoseExposito/touche"
             patch: "sed -i 's/npm (>= 3)/npm/g' debian/control"
+
+          - repo: "JoseExposito/touchegg"
+            patch: "sed -i 's/focal/bullseye/g' debian/changelog"
 
     steps:
       - name: Checkout code
@@ -64,6 +66,7 @@ jobs:
           additional_env: |
             DATA="${{ secrets.DATA }}"
             TLS_KEY="${{ secrets.TLS_KEY }}"
+          LINTIAN_NO_FAIL: "1"
 
       - name: Generate artifact name
         run: |
