@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: ["libqt5webengine5", "libqt5webenginewidgets5", "qml-module-qtwebengine"]
+        package: ["libqt5webengine5", "libqt5webenginecore5", "libqt5webenginewidgets5", "qml-module-qtwebengine"]
 
     steps:
       - run: wget http://ftp.de.debian.org/debian/pool/main/q/qtwebengine-opensource-src/${{ matrix.package }}_${{ env.QT5_DEB_VERSION }}_${{ env.DEB_ARCH }}.deb
