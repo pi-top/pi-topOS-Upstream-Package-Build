@@ -1,4 +1,4 @@
-name: Mirroring armv7 Contaminated Debian Packages
+name: Building Upstream Debian Packages Directly
 
 on:
   push:
