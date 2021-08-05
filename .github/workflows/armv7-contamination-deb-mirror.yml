@@ -12,10 +12,11 @@ on:
     - cron:  '0 0 * * *'
 
 env:
+  QT5_DEB_VERSION: "5.15.2+dfsg-3"
+  DEB_ARCH: "armhf"
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
   DISTRO: "bullseye"
-  ARCH: "linux/arm/v7"
 
 jobs:
   build-debian-package:
@@ -26,18 +27,11 @@ jobs:
         package: ["libqt5webengine5", "libqt5webenginewidgets5", "qml-module-qtwebengine"]
 
     steps:
-      - name: Download
-        run: |
-          echo "deb http://ftp.de.debian.org/debian bullseye main" | sudo tee /etc/apt/sources.list.d/debian-bullseye.list
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-          sudo apt-get update
-          apt-get download ${{ matrix.package }}:armhf
+      - run: wget http://ftp.de.debian.org/debian/pool/main/q/qtwebengine-opensource-src/${{ matrix.package }}_${{ env.QT5_DEB_VERSION }}_${{ env.DEB_ARCH }}.deb
 
-      # Upload experimental build
       - uses: docker://lpenz/ghaction-packagecloud:v0.3
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
-          files: ./*.deb
+          files: ${{ matrix.package }}_${{ env.QT5_DEB_VERSION }}_${{ env.DEB_ARCH }}.deb
