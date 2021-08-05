@@ -1,0 +1,39 @@
+name: Mirroring armv7 Contaminated Debian Packages
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    branches:
+      - master
+  schedule:
+    # Run daily at midnight
+    - cron:  '0 0 * * *'
+
+env:
+  PACKAGECLOUD_REPO: "experimental"
+  OS: "debian"
+  DISTRO: "bullseye"
+  ARCH: "linux/arm/v7"
+
+jobs:
+  build-debian-package:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ["libqt5webengine5", "libqt5webenginewidgets5", "qml-module-qtwebengine"]
+
+    steps:
+      - name: Download
+        run: |
+          apt download ${{ matrix.package }}:armhf
+
+      # Upload experimental build
+      - uses: docker://lpenz/ghaction-packagecloud:v0.3
+        with:
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+          files: ./*.deb
