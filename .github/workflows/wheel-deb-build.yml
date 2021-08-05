@@ -1,9 +1,9 @@
 name: Debian Packaging for CPython Packages from pre-built Python wheels
 
 on:
-  push:
-    branches:
-      - master
+  # push:
+  #   branches:
+  #     - master
   workflow_dispatch:
     branches:
       - master

@@ -1,9 +1,6 @@
 name: Mirroring armv7 Contaminated Debian Packages
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
     branches:
       - master

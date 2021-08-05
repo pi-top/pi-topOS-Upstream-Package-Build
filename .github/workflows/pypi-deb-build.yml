@@ -1,9 +1,6 @@
 name: Debian Packaging for Python Packages from PyPI
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
     branches:
       - master
