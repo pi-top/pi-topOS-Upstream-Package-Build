@@ -1,9 +1,9 @@
 name: Debian Packaging for CPython Packages from pre-built Python wheels
 
 on:
-  # push:
-  #   branches:
-  #     - master
+  push:
+    branches:
+      - master
   workflow_dispatch:
     branches:
       - master
@@ -24,12 +24,15 @@ env:
 jobs:
   build-debian-package:
     runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: false
-      matrix:
-        package: ["onnxruntime"]
     steps:
-      # TODO: use wheel2deb to build from wheels in src
+      # Checkout, only keep onnxruntime
+      - name: Checkout code
+        uses: actions/checkout@v2.3.4
+
+      - name: Checkout code
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: pi-top/wheel2deb
 
       - name: Build in ARM Docker container
         run: |
@@ -44,10 +47,11 @@ jobs:
               apt-get update
               apt-get install -y python3-apt apt-file dpkg-dev fakeroot build-essential devscripts debhelper
               apt-file update
-              pip3 install wheel2deb && wheel2deb
+              (cd wheel2deb && pip3 install -e .)
+              (cd python3-onnxruntime && wheel2deb && wheel2deb build)
           EOF
 
-          # mv deb_dist artifacts
+          ls -lR
 
       - name: Generate artifact name
         run: |
