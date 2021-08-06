@@ -37,6 +37,7 @@ jobs:
 
       - name: Build in ARM Docker container
         run: |
+          ls -lR
           docker run --rm --privileged tonistiigi/binfmt --install all
 
           docker run -i \
