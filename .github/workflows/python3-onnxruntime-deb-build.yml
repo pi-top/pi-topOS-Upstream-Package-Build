@@ -49,8 +49,7 @@ jobs:
               apt-get update
               apt-get install -y python3-pip python3-apt apt-file dpkg-dev fakeroot build-essential devscripts debhelper
               apt-file update
-              cd wheel2deb && pip3 install -e . && cd ..
-              cd python3-onnxruntime && wheel2deb && wheel2deb build
+              cd wheel2deb && pip3 install -e . && cd ../python3-onnxruntime && wheel2deb && wheel2deb build
           EOF
 
           ls -lR
