@@ -29,12 +29,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2.3.4
 
-      - name: Checkout code
-        uses: actions/checkout@v2.3.4
-        with:
-          repository: pi-top/wheel2deb
-          path: wheel2deb
-
       - name: Build in ARM Docker container
         run: |
           ls -lR
@@ -49,35 +43,35 @@ jobs:
               apt-get update
               apt-get install -y python3-pip python3-apt apt-file dpkg-dev fakeroot build-essential devscripts debhelper
               apt-file update
-              cd wheel2deb && pip3 install -e . && cd ../python3-onnxruntime && wheel2deb && wheel2deb build
+              pip3 install wheel2deb && cd ./python3-onnxruntime && wheel2deb --verbose && wheel2deb build --verbose
           EOF
 
           ls -lR
 
       - name: Generate artifact name
         run: |
-          echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find . -name "*.dsc")")" >> $GITHUB_ENV
+          echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find ./python3-onnxruntime/output -name "*.dsc")")" >> $GITHUB_ENV
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.deb
-          path: ./artifacts/*.deb
+          path: ./python3-onnxruntime/output/*.deb
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.deb-src
-          path: ./artifacts/*.tar.xz
+          path: ./python3-onnxruntime/output/*.tar.*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.metadata
           path: |
-            ./artifacts/**
-            !./artifacts/*.deb
-            !./artifacts/*.tar.xz
+            ./python3-onnxruntime/output/**
+            !./python3-onnxruntime/output/*.deb
+            !./python3-onnxruntime/output/*.tar.*
 
       # Upload experimental build
       - uses: docker://lpenz/ghaction-packagecloud:v0.3
