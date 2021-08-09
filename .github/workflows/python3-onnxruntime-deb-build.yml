@@ -41,7 +41,7 @@ jobs:
             ${{ env.OS }}:${{ env.DISTRO }} \
             /bin/bash -s <<EOF
               apt-get update
-              apt-get install -y python3-pip python3-apt apt-file dpkg-dev fakeroot build-essential devscripts debhelper dh-python python3-all-dev python3-setuptools
+              apt-get install -y debhelper dh-python python3-all-dev python3-setuptools
               apt-file update
               pip3 install wheel2deb && cd ./python3-onnxruntime && wheel2deb --verbose && wheel2deb build --verbose
           EOF
