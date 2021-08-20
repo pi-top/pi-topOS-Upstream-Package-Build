@@ -4,9 +4,6 @@ on:
   workflow_dispatch:
     branches:
       - master
-  # schedule:
-  #   # Run daily at midnight
-  #   - cron:  '0 0 * * *'
 
 env:
   DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
