@@ -24,11 +24,7 @@ jobs:
         package: ["imutils", "python-osc"]
         include:
           - package: "python-sonic"
-            # fix dpkg build issue:
-            #     dpkg-source: info: local changes detected, the modified files are:
-            #      python-sonic-0.4.1/.eggs
-            patch: "sed -i '/pytest-runner/d' setup.py"
-            # TODO: get this working
+            # patch: "sed -i '/pytest-runner/d' setup.py"
             # options: "--depends python3-python-osc"
 
           - package: "dlib"
@@ -60,6 +56,7 @@ jobs:
           rm ${{ env.TARBALL_FILE_NAME }}
           tar -czf ${{ env.TARBALL_FILE_NAME }} ./${{ env.PY_PACKAGE_SRC_NAME }}/*
 
+      # TODO: Move to Dockerfile
       - name: Build in ARM Docker container
         run: |
           docker run --rm --privileged tonistiigi/binfmt --install all
