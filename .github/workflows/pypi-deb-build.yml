@@ -21,11 +21,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: ["imutils", "python-osc", "pyfestival"]
+        package: ["imutils", "python-osc"]
         include:
           - package: "pyfestival"
             deps: "festival-dev"
-            patch: "sed -i 's/\'eststring\'/\'eststring\', \'ncurses\', \'gomp\'/1' setup.py"
+            patch: sed -i "s/'eststring'/'eststring', 'ncurses', 'gomp'/1" setup.py
 
           - package: "python-sonic"
             # patch: "sed -i '/pytest-runner/d' setup.py"
@@ -54,6 +54,7 @@ jobs:
           # Modify
           cd ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}
           ${{ matrix.patch }}
+          cat setup.py
 
           # Repackage
           cd ${{ github.workspace }}/
