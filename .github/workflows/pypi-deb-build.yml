@@ -25,7 +25,7 @@ jobs:
         include:
           - package: "pyfestival"
             deps: "festival-dev"
-            patch: "sed -i 's/\'eststring\'/\'eststring\', \'ncurses\', \'gomp\'' setup.py"
+            patch: "sed -i 's/\'eststring\'/\'eststring\', \'ncurses\', \'gomp\'/1' setup.py"
 
           - package: "python-sonic"
             # patch: "sed -i '/pytest-runner/d' setup.py"
