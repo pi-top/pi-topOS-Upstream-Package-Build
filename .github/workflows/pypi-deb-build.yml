@@ -23,6 +23,9 @@ jobs:
       matrix:
         package: ["imutils", "python-osc", "pyfestival"]
         include:
+          - package: "pyfestival"
+            deps: "festival-dev"
+
           - package: "python-sonic"
             # patch: "sed -i '/pytest-runner/d' setup.py"
             # options: "--depends python3-python-osc"
