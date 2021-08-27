@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: Install stdeb
         run: |
-          pip install stdeb
+          pip install stdeb requests
 
       - name: Download source
         run: |
