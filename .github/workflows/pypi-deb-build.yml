@@ -61,13 +61,13 @@ jobs:
           cd ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}
           ${{ matrix.patch }}
 
-      # TODO: Move to Dockerfile
+      # TODO: Move to Dockerfile, use image for each build
       - name: Build in ARM Docker container
         run: |
           docker run --rm --privileged tonistiigi/binfmt --install all
 
           docker run -i \
-            --volume ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}:${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }} \
+            --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }} \
             --platform ${{ env.DOCKER_ARCH }} \
             ${{ env.OS }}:${{ env.DISTRO }} \
@@ -77,10 +77,9 @@ jobs:
               pip3 install stdeb
               python3 setup.py --command-packages stdeb.command \
                 sdist_dsc ${{ matrix.sdist_dsc_options }} \
+                --dist-dir=${{ github.workspace }}/artifacts
                 bdist_deb
           EOF
-
-          mv deb_dist artifacts
 
       - name: Generate artifact name
         run: |
