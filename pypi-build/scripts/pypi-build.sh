@@ -30,4 +30,5 @@ if [[ -f "${patch_file_path}" ]]; then
 fi
 
 set -x
-python3 setup.py --command-packages stdeb.command sdist_dsc ${patch_file_args:-}$@ --dist-dir=./artifacts bdist_deb
+shift
+python3 setup.py --command-packages stdeb.command sdist_dsc ${patch_file_args:-}${@} --dist-dir=./artifacts bdist_deb
