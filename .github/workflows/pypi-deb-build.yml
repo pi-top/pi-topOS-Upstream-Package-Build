@@ -1,9 +1,6 @@
 name: Debian Packaging for Python Packages from PyPI
 
-on:
-  workflow_dispatch:
-    branches:
-      - master
+on: workflow_dispatch
 
 env:
   DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
@@ -22,63 +19,33 @@ jobs:
       fail-fast: false
       matrix:
         package: ["imutils"]
+        # sdist_dsc_options:
+        #     https://github.com/astraw/stdeb#stdeb-distutils-command-options
+        #     https://github.com/astraw/stdeb#stdebcfg-configuration-file
         include:
-          - package: "pyfestival"
-            deps: "festival-dev"
-            patch: sed -i "s/'eststring'/'eststring', 'ncurses', 'gomp'/1" setup.py
-
           - package: "python-osc"
             sdist_dsc_options: "--package3 python3-osc"
 
           - package: "python-sonic"
-            # TODO: replace with '--stdeb-patch-file'
-            patch: "sed -i 's/PREADME.txt/README.rst/1' setup.py && sed -i '/pytest-runner/d' setup.py"
-            # https://github.com/astraw/stdeb#stdeb-distutils-command-options
-            # https://github.com/astraw/stdeb#stdebcfg-configuration-file
             sdist_dsc_options: "--package3 python3-sonic --depends3 python3-osc"
 
+          - package: "pyfestival"
+            build_deps: "festival-dev"
+
           - package: "dlib"
-            deps: "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
+            build_deps: "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
 
     steps:
-      - name: Install stdeb
-        run: |
-          pip install stdeb requests
-
-      - name: Download source
-        run: |
-          tarball_file_name="$(pypi-download ${{ matrix.package }} | awk '{print $2}')"
-          echo "TARBALL_FILE_NAME=${tarball_file_name}" >> $GITHUB_ENV
-          echo "PY_PACKAGE_SRC_NAME=$(echo ${tarball_file_name} | sed 's/.tar.gz//')" >> $GITHUB_ENV
-
-      - name: Extract source
-        run: |
-          tar xvzf ${{ env.TARBALL_FILE_NAME }}
-
-      - name: Patch source
-        if: matrix.patch != ''
-        run: |
-          cd ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}
-          ${{ matrix.patch }}
-
-      # TODO: Move to Dockerfile, use image for each build
       - name: Build in ARM Docker container
         run: |
           docker run --rm --privileged tonistiigi/binfmt --install all
 
           docker run -i \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
-            --workdir=${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }} \
+            -e BUILD_DEPENDENCIES:${{ matrix.build_deps }} \
             --platform ${{ env.DOCKER_ARCH }} \
-            ${{ env.OS }}:${{ env.DISTRO }} \
-            /bin/bash -s <<EOF
-              apt-get update
-              apt-get install -y debhelper dh-python python3-all-dev python3-pip ${{ matrix.deps }}
-              pip3 install stdeb
-              python3 setup.py --command-packages stdeb.command \
-                sdist_dsc ${{ matrix.sdist_dsc_options }} \
-                --dist-dir=${{ github.workspace }}/artifacts
-                bdist_deb
+            pitop/pypi-build:latest \
+            ${{ matrix.package }} ${{ matrix.sdist_dsc_options }}
           EOF
 
       - name: Generate artifact name

@@ -1,9 +1,6 @@
 name: Mirroring armv7 Contaminated Debian Packages
 
-on:
-  workflow_dispatch:
-    branches:
-      - master
+on: workflow_dispatch
 
 env:
   QT5_DEB_VERSION: "5.15.2+dfsg-3"

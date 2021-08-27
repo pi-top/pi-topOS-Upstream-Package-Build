@@ -1,9 +1,6 @@
 name: Debian Packaging for CPython Packages from pre-built Python wheels
 
-on:
-  workflow_dispatch:
-    branches:
-      - master
+on: workflow_dispatch
 
 env:
   DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
@@ -38,7 +35,10 @@ jobs:
               apt install -y python3-apt apt-file dpkg-dev fakeroot build-essential devscripts debhelper
               apt-file update
               apt-get install -y debhelper dh-python python3-all-dev python3-setuptools python3-pip
-              pip3 install wheel2deb && cd ./python3-onnxruntime && wheel2deb --verbose && wheel2deb build --verbose
+              pip3 install wheel2deb
+              cd ./python3-onnxruntime
+              wheel2deb --verbose
+              wheel2deb build --verbose
           EOF
 
           ls -lR
