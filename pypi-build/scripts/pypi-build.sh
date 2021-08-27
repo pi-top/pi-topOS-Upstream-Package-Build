@@ -18,7 +18,7 @@ tarball_file_name="$(pypi-download "${package_name}" | awk '{print $2}')"
 cwd=$(pwd)
 
 tar xvzf "${cwd}/${tarball_file_name}"
-mv "./$(echo "${cwd}/${tarball_file_name}" | sed 's/.tar.gz//')/"* .
+mv "./$(echo "${tarball_file_name}" | sed 's/.tar.gz//')/"* .
 
 patch_file_path="${cwd}/pypi-build/patches/${package_name}.patch"
 echo "Looking for patch: ${patch_file_path}"
