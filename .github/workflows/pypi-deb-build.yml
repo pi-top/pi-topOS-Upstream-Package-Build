@@ -21,15 +21,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: ["imutils", "python-osc"]
+        package: ["imutils"]
         include:
           - package: "pyfestival"
             deps: "festival-dev"
             patch: sed -i "s/'eststring'/'eststring', 'ncurses', 'gomp'/1" setup.py
 
+          - package: "python-osc"
+            sdist_dsc_options: "--package3 python3-osc"
+
           - package: "python-sonic"
-            # patch: "sed -i '/pytest-runner/d' setup.py"
-            # options: "--depends python3-python-osc"
+            # TODO: replace with '--stdeb-patch-file'
+            patch: "sed -i 's/PREADME.txt/README.rst/1' setup.py && sed -i '/pytest-runner/d' setup.py"
+            # https://github.com/astraw/stdeb#stdeb-distutils-command-options
+            # https://github.com/astraw/stdeb#stdebcfg-configuration-file
+            sdist_dsc_options: "--package3 python3-sonic --depends3 python3-osc"
 
           - package: "dlib"
             deps: "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
@@ -45,21 +51,15 @@ jobs:
           echo "TARBALL_FILE_NAME=${tarball_file_name}" >> $GITHUB_ENV
           echo "PY_PACKAGE_SRC_NAME=$(echo ${tarball_file_name} | sed 's/.tar.gz//')" >> $GITHUB_ENV
 
-      - name: Fix source
-        if: matrix.patch != ''
+      - name: Extract source
         run: |
-          # Extract
           tar xvzf ${{ env.TARBALL_FILE_NAME }}
 
-          # Modify
+      - name: Patch source
+        if: matrix.patch != ''
+        run: |
           cd ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}
           ${{ matrix.patch }}
-          cat setup.py
-
-          # Repackage
-          cd ${{ github.workspace }}/
-          rm ${{ env.TARBALL_FILE_NAME }}
-          tar -czf ${{ env.TARBALL_FILE_NAME }} ./${{ env.PY_PACKAGE_SRC_NAME }}/*
 
       # TODO: Move to Dockerfile
       - name: Build in ARM Docker container
@@ -67,14 +67,17 @@ jobs:
           docker run --rm --privileged tonistiigi/binfmt --install all
 
           docker run -i \
-            --volume ${{ github.workspace }}:${{ github.workspace }} \
-            --workdir=${{ github.workspace }} \
+            --volume ${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }}:${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }} \
+            --workdir=${{ github.workspace }}/${{ env.PY_PACKAGE_SRC_NAME }} \
             --platform ${{ env.DOCKER_ARCH }} \
             ${{ env.OS }}:${{ env.DISTRO }} \
             /bin/bash -s <<EOF
               apt-get update
               apt-get install -y debhelper dh-python python3-all-dev python3-pip ${{ matrix.deps }}
-              pip3 install stdeb && py2dsc-deb ${{ matrix.options }} ${{ env.TARBALL_FILE_NAME }}
+              pip3 install stdeb
+              python3 setup.py --command-packages stdeb.command \
+                sdist_dsc ${{ matrix.sdist_dsc_options }} \
+                bdist_deb
           EOF
 
           mv deb_dist artifacts
