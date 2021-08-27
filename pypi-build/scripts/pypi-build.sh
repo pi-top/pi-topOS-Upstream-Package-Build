@@ -12,6 +12,7 @@ if [[ -n "${BUILD_DEPENDENCIES:-}" ]]; then
 fi
 
 package_name="${1}"
+shift
 
 tarball_file_name="$(pypi-download "${package_name}" | awk '{print $2}')"
 
@@ -30,5 +31,4 @@ if [[ -f "${patch_file_path}" ]]; then
 fi
 
 set -x
-shift
 python3 setup.py --command-packages stdeb.command sdist_dsc ${patch_file_args:-}${@} --dist-dir=./artifacts bdist_deb
