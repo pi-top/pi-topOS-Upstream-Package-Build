@@ -22,10 +22,12 @@ mv "./$(echo "${cwd}/${tarball_file_name}" | sed 's/.tar.gz//')/"* .
 
 patch_file_path="${cwd}/pypi-build/patches/${package_name}.patch"
 echo "Looking for patch: ${patch_file_path}"
+ls
 
 if [[ -f "${patch_file_path}" ]]; then
   echo "Patch found: ${patch_file_path}"
   patch_file_args="--stdeb-patch-file=${patch_file_path} "
 fi
 
+set -x
 python3 setup.py --command-packages stdeb.command sdist_dsc ${patch_file_args:-}$@ --dist-dir=./artifacts bdist_deb
