@@ -49,7 +49,7 @@ jobs:
             -e BUILD_DEPENDENCIES:"${{ matrix.build_deps }}" \
             --platform ${{ env.DOCKER_ARCH }} \
             pitop/pypi-build:latest \
-            python3 ./scripts/pypi-build.py \
+            python3 $(pwd)/pypi-build/scripts/pypi-build.py \
               "${{ matrix.package }}" \
               --options-str="${{ matrix.sdist_dsc_options }}"
           EOF
