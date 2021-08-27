@@ -44,8 +44,8 @@ jobs:
           docker run --rm --privileged tonistiigi/binfmt --install all
 
           docker run -i \
-            --volume ${{ github.workspace }}:${{ github.workspace }} \
-            --workdir=${{ github.workspace }} \
+            --volume $(pwd):$(pwd) \
+            --workdir=$(pwd) \
             -e BUILD_DEPENDENCIES:"${{ matrix.build_deps }}" \
             --platform ${{ env.DOCKER_ARCH }} \
             pitop/pypi-build:latest \
