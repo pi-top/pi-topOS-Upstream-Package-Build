@@ -43,7 +43,7 @@ jobs:
           docker run -i \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
-            -e BUILD_DEPENDENCIES:${{ matrix.build_deps }} \
+            -e BUILD_DEPENDENCIES:"${{ matrix.build_deps }}" \
             --platform ${{ env.DOCKER_ARCH }} \
             pitop/pypi-build:latest \
             ${{ matrix.package }} ${{ matrix.sdist_dsc_options }}
