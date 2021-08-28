@@ -26,6 +26,7 @@ def main(options_str, package):
     proc = subprocess.run(["pypi-download", package], capture_output=True)
     if proc.returncode != 0:
       click.echo("Failed to download source")
+      click.echo(proc)
       return
 
     click.echo("Extracting source...")
