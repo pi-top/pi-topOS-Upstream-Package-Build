@@ -1,0 +1,11 @@
+--- a/setup.py
++++ b/setup.py
+@@ -41,7 +41,7 @@
+             ['_festival.cpp'],
+             include_dirs=[festival_include, speech_tools_include],
+             library_dirs=[festival_lib],
+-            libraries=['Festival', 'estools', 'estbase', 'eststring'],
++            libraries=['Festival', 'estools', 'estbase', 'eststring', 'ncurses', 'gomp'],
+         ),
+     ],
+     platforms=["*nix"],
