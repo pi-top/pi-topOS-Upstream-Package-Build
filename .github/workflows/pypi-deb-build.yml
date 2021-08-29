@@ -54,7 +54,7 @@ jobs:
             --platform ${{ env.DOCKER_ARCH }} \
             pitop/pypi-build:latest \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package }} \
-              --options-str="${{ matrix.sdist_dsc_options }} --upstream-version-suffix '+pt' --debian-version ${{ github.run_number }}"
+              --options-str="${{ matrix.sdist_dsc_options }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}"
 
       - name: Generate artifact name
         run: |
