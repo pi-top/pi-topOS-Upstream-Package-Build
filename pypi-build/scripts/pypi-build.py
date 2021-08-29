@@ -29,6 +29,8 @@ def main(options_str, package):
       click.echo(proc)
       return
 
+    subprocess.run(["sudo", "chown", "-R", "nonroot:nonroot", "."])
+
     click.echo("Extracting source...")
     tarballFilename = str(proc.stdout).split(" ")[1].split("\\")[0]
     subprocess.run(["tar", "xzf", tarballFilename])
