@@ -1,6 +1,10 @@
 name: Debian Packaging for Python Packages from PyPI
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/pypi-deb-build.yml"
 
 env:
   DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
