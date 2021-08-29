@@ -49,10 +49,8 @@ jobs:
             -e BUILD_DEPENDENCIES="${{ matrix.build_deps }}" \
             --platform ${{ env.DOCKER_ARCH }} \
             pitop/pypi-build:latest \
-            python3 ${{ github.workspace }}/pypi-build/scripts/pypi-build.py \
-              "${{ matrix.package }}" \
+            ./pypi-build/scripts/pypi-build.py ${{ matrix.package }} \
               --options-str="${{ matrix.sdist_dsc_options }}"
-          EOF
 
       - name: Generate artifact name
         run: |

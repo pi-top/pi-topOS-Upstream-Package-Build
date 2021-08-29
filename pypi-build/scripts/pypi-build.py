@@ -22,14 +22,15 @@ import subprocess
 )
 def main(options_str, package):
     """pi-topOS meta-exec."""
+    click.echo("Fixing permissions for current directory...")
+    subprocess.run(["sudo", "chown", "-R", "nonroot:nonroot", "."])
+
     click.echo("Downloading source...")
-    proc = subprocess.run(["sudo", "pypi-download", package], capture_output=True)
+    proc = subprocess.run(["pypi-download", package], capture_output=True)
     if proc.returncode != 0:
       click.echo("Failed to download source")
       click.echo(proc)
       return
-
-    subprocess.run(["sudo", "chown", "-R", "nonroot:nonroot", "."])
 
     click.echo("Extracting source...")
     tarballFilename = str(proc.stdout).split(" ")[1].split("\\")[0]
@@ -82,7 +83,7 @@ def main(options_str, package):
     click.echo("Checking for build dependencies...")
     if os.environ.get('BUILD_DEPENDENCIES'):
       click.echo("Build dependencies found - installing...")
-      subprocess.run(["apt-get", "install", "-y"] + BUILD_DEPENDENCIES.split(" "))
+      subprocess.run(["sudo", "apt-get", "install", "-y"] + os.environ.get('BUILD_DEPENDENCIES').split(" "))
 
     click.echo(" ".join(args))
 
