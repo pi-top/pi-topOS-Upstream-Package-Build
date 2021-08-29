@@ -50,7 +50,7 @@ jobs:
             --platform ${{ env.DOCKER_ARCH }} \
             pitop/pypi-build:latest \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package }} \
-              --options-str="${{ matrix.sdist_dsc_options }}"
+              --options-str="${{ matrix.sdist_dsc_options }} --upstream-version-suffix '+pt'"
 
       - name: Generate artifact name
         run: |
