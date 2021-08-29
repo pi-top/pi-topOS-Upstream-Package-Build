@@ -9,3 +9,13 @@
          ),
      ],
      platforms=["*nix"],
+--- a/_festival.cpp
++++ b/_festival.cpp
+@@ -1,6 +1,6 @@
+ #include <stdio.h>
+ #include <festival.h>
+-#include "festival_private.h"
++#include <festival_private.h>
+ #include "Python.h"
+ 
+ 
