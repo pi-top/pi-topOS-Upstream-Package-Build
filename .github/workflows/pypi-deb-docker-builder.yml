@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "pypi-build/scripts/**"
       - "pypi-build/Dockerfile"
       - ".github/workflows/pypi-deb-docker-builder.yml"
 
