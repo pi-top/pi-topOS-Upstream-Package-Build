@@ -44,12 +44,12 @@ jobs:
           docker run --rm --privileged tonistiigi/binfmt --install all
 
           docker run -i \
-            --volume ${{ github.workspace }}:${{ github.workspace }} \
-            --workdir=${{ github.workspace }} \
+            --volume ${{ github.workspace }}:/home/nonroot \
+            --workdir=/home/nonroot \
             -e BUILD_DEPENDENCIES="${{ matrix.build_deps }}" \
             --platform ${{ env.DOCKER_ARCH }} \
             pitop/pypi-build:latest \
-            python3 ${{ github.workspace }}/pypi-build/scripts/pypi-build.py \
+            python3 ./pypi-build/scripts/pypi-build.py \
               "${{ matrix.package }}" \
               --options-str="${{ matrix.sdist_dsc_options }}"
           EOF
