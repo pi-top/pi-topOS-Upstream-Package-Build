@@ -1,7 +1,7 @@
 FROM debian:sid
 
 RUN apt-get update && \
-    apt-get install -y debhelper dh-python python3-all-dev python3-pip && \
+    apt-get install -y debhelper dh-python python3-all-dev python3-pip sudo && \
     pip3 install stdeb requests click
 
 # Add a user with userid 1000 and name nonroot

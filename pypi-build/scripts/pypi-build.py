@@ -23,7 +23,7 @@ import subprocess
 def main(options_str, package):
     """pi-topOS meta-exec."""
     click.echo("Downloading source...")
-    proc = subprocess.run(["pypi-download", package], capture_output=True)
+    proc = subprocess.run(["sudo", "pypi-download", package], capture_output=True)
     if proc.returncode != 0:
       click.echo("Failed to download source")
       click.echo(proc)
