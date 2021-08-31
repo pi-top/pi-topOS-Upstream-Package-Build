@@ -33,9 +33,6 @@ jobs:
           - package: "python-sonic"
             sdist_dsc_options: "--package3 python3-sonic --depends3 python3-osc"
 
-          - package: "pyfestival"
-            build_deps: "festival-dev"
-
           - package: "dlib"
             build_deps: "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
 
