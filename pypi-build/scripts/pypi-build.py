@@ -68,9 +68,6 @@ def main(options_str, package):
     args.append("--dist-dir")
     args.append("./artifacts")
 
-    # Required for patching python-sonic's broken source
-    args.append("--ignore-source-changes")
-
     args.append("bdist_deb")
 
     click.echo("Checking for build dependencies...")
