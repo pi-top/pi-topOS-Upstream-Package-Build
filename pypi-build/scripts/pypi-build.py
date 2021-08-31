@@ -48,13 +48,6 @@ def main(options_str, package):
     click.echo("Listing top-level of repo...")
     subprocess.run(["ls", "-l", currentDir])
 
-    # Fix python-sonic broken source
-    # https://github.com/gkvoelkl/python-sonic/issues/38
-    with open('setup.py', 'r') as file :
-      filedata = file.read()
-
-    filedata = filedata.replace('PREADME.txt', 'README.rst')
-
     with open('setup.py', 'w') as file:
       file.write(filedata)
 
