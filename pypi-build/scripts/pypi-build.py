@@ -48,9 +48,6 @@ def main(options_str, package):
     click.echo("Listing top-level of repo...")
     subprocess.run(["ls", "-l", currentDir])
 
-    with open('setup.py', 'w') as file:
-      file.write(filedata)
-
     patchFilePath = pathlib.Path(os.path.join(currentDir, "pypi-build", "patches", f"{package}.patch"))
     print(f"Looking for patch: {patchFilePath}")
 
