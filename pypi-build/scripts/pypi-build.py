@@ -57,6 +57,7 @@ def main(options_str, package):
       print(f"Patch found: {patchFilePath}")
       for i in ["-p", str(patchFilePath), "-l", str(1)]:
         args.append(i)
+      args.append("--ignore-source-changes")
       
     if options_str:
       for field in shlex.split(options_str):
