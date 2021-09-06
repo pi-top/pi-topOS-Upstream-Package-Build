@@ -3,7 +3,8 @@ name: Mirroring armv7 Contaminated Debian Packages
 on: workflow_dispatch
 
 env:
-  QT5_DEB_VERSION: "5.15.2+dfsg-3"
+  QT5_DEB_VERSION: "5.15.2+dfsg"
+  QT5_DEB_REV_VERSION: "3"
   DEB_ARCH: "armhf"
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
@@ -34,16 +35,18 @@ jobs:
 
     steps:
       - if: matrix.type == 'deb'
-        run: echo "FILENAME=${{ matrix.package }}_${{ env.QT5_DEB_VERSION }}_${{ env.DEB_ARCH }}.deb" >> $GITHUB_ENV
+        run: wget ${{ env.POOL_URL }}/${{ matrix.package }}_${{ env.QT5_DEB_VERSION }}-${{ env.QT5_DEB_REV_VERSION }}_${{ env.DEB_ARCH }}.deb
 
       - if: matrix.type == 'dsc'
-        run: echo "FILENAME=${{ matrix.package }}_${{ env.QT5_DEB_VERSION }}.dsc" >> $GITHUB_ENV
+        # Download additional source files for source package release
+        run: |
+          wget ${{ env.POOL_URL }}/${{ matrix.package }}_${{ env.QT5_DEB_VERSION }}-${{ env.QT5_DEB_REV_VERSION }}.dsc
+          wget ${{ env.POOL_URL }}/${{ matrix.package }}_${{ env.QT5_DEB_VERSION }}-${{ env.QT5_DEB_REV_VERSION }}.debian.tar.xz
+          wget ${{ env.POOL_URL }}/${{ matrix.package }}_${{ env.QT5_DEB_VERSION }}.orig.tar.xz
 
-      - run: wget ${{ env.POOL_URL }}/${{ env.FILENAME }}
-
-      - uses: docker://lpenz/ghaction-packagecloud:v0.3
+      - uses: pi-top/ghaction-packagecloud@main
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
-          files: ./${{ env.FILENAME }}
+          files: ./*.${{ matrix.type }}
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
