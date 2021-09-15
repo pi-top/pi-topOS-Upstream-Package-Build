@@ -1,6 +1,7 @@
 name: Debian Packaging for CPython Packages from pre-built Python wheels
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
   push:
     paths:
       - ".github/workflows/python3-onnxruntime-deb-build.yml"

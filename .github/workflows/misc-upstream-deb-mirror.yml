@@ -1,6 +1,7 @@
 name: Building Upstream Debian Packages Directly
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
   push:
     paths:
       - ".github/workflows/misc-upstream-deb-mirror.yml"
