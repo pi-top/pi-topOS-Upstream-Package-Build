@@ -27,8 +27,7 @@ jobs:
 
           - repo: "JoseExposito/touche"
             use_release_ref: "true"
-            # sed -i 's/npm (>= 3)/npm/g' debian/control &&
-            patch: "sed -i 's/focal/bullseye/g' debian/changelog && echo -e '\n\n\noverride_dh_auto_build:\n       npm ci\n       dh_auto_build\n\noverride_dh_clean:\n       rm -rf node_modules\n       dh_clean' >> debian/rules"
+            patch: "sed -i 's/npm (>= 3)/npm/g' debian/control && sed -i 's/focal/bullseye/g' debian/changelog && echo -e '\n\n\noverride_dh_auto_build:\n       npm ci\n       dh_auto_build\n\noverride_dh_clean:\n       rm -rf node_modules\n       dh_clean' >> debian/rules"
 
           - repo: "JoseExposito/touchegg"
             use_release_ref: "true"
