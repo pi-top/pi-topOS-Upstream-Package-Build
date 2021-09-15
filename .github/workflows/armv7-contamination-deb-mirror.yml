@@ -1,6 +1,9 @@
 name: Mirroring armv7 Contaminated Debian Packages
 
 on: workflow_dispatch
+  push:
+    paths:
+      - ".github/workflows/armv7-contamination-deb-mirror.yml"
 
 env:
   QT5_DEB_VERSION: "5.15.2+dfsg"
