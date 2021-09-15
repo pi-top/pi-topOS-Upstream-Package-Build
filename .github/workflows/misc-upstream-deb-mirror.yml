@@ -110,3 +110,5 @@ jobs:
           files: |
             ./artifacts/*.dsc
             ./artifacts/*.deb
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
