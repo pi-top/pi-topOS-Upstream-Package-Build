@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: ["imutils"]
+        package: ["grove.py", "imutils"]
         # sdist_dsc_options:
         #     https://github.com/astraw/stdeb#stdeb-distutils-command-options
         #     https://github.com/astraw/stdeb#stdebcfg-configuration-file
