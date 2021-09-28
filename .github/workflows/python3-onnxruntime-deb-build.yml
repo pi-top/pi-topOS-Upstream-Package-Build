@@ -42,8 +42,8 @@ jobs:
               apt-get install -y debhelper dh-python python3-all-dev python3-setuptools python3-pip
               pip3 install wheel2deb
               cd ./python3-onnxruntime
-              wheel2deb --verbose
-              wheel2deb build --revision ${{ github.run_number }} --verbose
+              wheel2deb --revision ${{ github.run_number }} --verbose
+              wheel2deb build --verbose
           EOF
 
           ls -lR
