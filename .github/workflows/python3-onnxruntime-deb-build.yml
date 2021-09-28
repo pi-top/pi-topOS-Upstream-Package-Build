@@ -77,7 +77,7 @@ jobs:
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
           files: |
-            ./artifacts/*.dsc
-            ./artifacts/*.deb
+            ./python3-onnxruntime/output/*.dsc
+            ./python3-onnxruntime/output/*.deb
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
