@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - ".github/workflows/python3-onnxruntime-deb-build.yml"
+      - "python3-onnxruntime/*.whl"
 
 env:
   DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
