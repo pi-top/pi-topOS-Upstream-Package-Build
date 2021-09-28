@@ -42,7 +42,7 @@ jobs:
               pip3 install wheel2deb
               cd ./python3-onnxruntime
               wheel2deb --verbose
-              wheel2deb build --verbose
+              wheel2deb build --revision ${{ github.run_number }} --verbose
           EOF
 
           ls -lR
