@@ -2,13 +2,13 @@
 
 This repository is used for building and uploading Debian source and binary packages into the pi-topOS apt repository that are not pi-top software. This can be external dependencies for pi-top software, or libraries/apps that are intended for use by the end-user.
 
-## Package Types
+## Packages
 
 ### ARMv7 contamination
 
 Raspberry Pi OS does not provide packages that are not guaranteed to run on ARMv6, which is needed for earlier Raspberry Pi models that are not officially supported by pi-topOS.
 
-Qt 5's [WebEngine](https://doc.qt.io/qt-5/qtwebengine-overview.html) component is provided by multiple Debian binary packages produced from the source `qtwebengine-opensource-src` package that fail this check and are consequently not available directly in pi-topOS:
+Qt 5's [WebEngine](https://doc.qt.io/qt-5/qtwebengine-overview.html) component is provided by multiple Debian binary packages produced from the source [`qtwebengine-opensource-src`](https://packages.debian.org/source/stable/qtwebengine-opensource-src) package that fail this check and are consequently not available directly in pi-topOS:
 
 * [`libqt5webengine5`](https://packages.debian.org/stable/libqt5webengine5)
 * [`libqt5webenginecore5`](https://packages.debian.org/stable/libqt5webenginecore5)
