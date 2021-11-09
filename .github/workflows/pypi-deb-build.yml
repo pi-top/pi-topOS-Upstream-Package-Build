@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: ["click_logging", "imutils"]
+        package: ["click-logging", "imutils"]
         # sdist_dsc_options:
         #     https://github.com/astraw/stdeb#stdeb-distutils-command-options
         #     https://github.com/astraw/stdeb#stdebcfg-configuration-file
