@@ -62,9 +62,12 @@ def main(options_str, package):
 
     if patchFilePath.exists():
       print(f"Patch found: {patchFilePath}")
-      for i in ["-p", str(patchFilePath), "-l", str(1)]:
-        args.append(i)
       args.append("--ignore-source-changes")
+
+      with open(patchFilePath, 'rb') as f:
+          patchData = f.read()
+
+      subprocess.run(["patch", "-p1"], input=patchData)
       
     if options_str:
       for field in shlex.split(options_str):
