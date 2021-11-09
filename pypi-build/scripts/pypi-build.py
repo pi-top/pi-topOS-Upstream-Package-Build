@@ -25,6 +25,7 @@ def main(options_str, package):
     click.echo("Fixing permissions for current directory...")
     subprocess.run(["sudo", "chown", "-R", "nonroot:nonroot", "."])
 
+
     click.echo("Downloading source...")
     proc = subprocess.run(["pypi-download", package], capture_output=True)
     if proc.returncode != 0:
@@ -32,9 +33,11 @@ def main(options_str, package):
       click.echo(proc)
       return
 
+
     click.echo("Extracting source...")
     tarballFilename = str(proc.stdout).split(" ")[1].split("\\")[0]
     subprocess.run(["tar", "xzf", tarballFilename])
+
 
     click.echo("Moving source to top-level of repo...")
     currentDir = pathlib.Path(os.getcwd())
@@ -45,8 +48,13 @@ def main(options_str, package):
         except Exception:
             click.echo(f"WARNING: Unable to move {os.path.join(currentDir, subDir, f)} to {currentDir}...")
 
+
     click.echo("Removing tarball...")
     os.remove(tarballFilename)
+
+    # Patch for click-logging until merged:
+    #   https://github.com/Toilal/click-logging/pull/5
+    subprocess.run(["touch", "CHANGELOG.md"])
 
     click.echo("Listing top-level of repo...")
     subprocess.run(["ls", "-l", currentDir])
@@ -71,10 +79,12 @@ def main(options_str, package):
 
     args.append("bdist_deb")
 
+
     click.echo("Checking for build dependencies...")
     if os.environ.get('BUILD_DEPENDENCIES'):
       click.echo("Build dependencies found - installing...")
       subprocess.run(["sudo", "apt-get", "install", "-y"] + os.environ.get('BUILD_DEPENDENCIES').split(" "))
+
 
     click.echo(" ".join(args))
 
