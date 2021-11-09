@@ -52,10 +52,6 @@ def main(options_str, package):
     click.echo("Removing tarball...")
     os.remove(tarballFilename)
 
-    # Patch for click-logging until merged:
-    #   https://github.com/Toilal/click-logging/pull/5
-    subprocess.run(["touch", "CHANGELOG.md"])
-
     click.echo("Listing top-level of repo...")
     subprocess.run(["ls", "-l", currentDir])
 
