@@ -40,8 +40,10 @@ def main(options_str, package):
     currentDir = pathlib.Path(os.getcwd())
     subDir = tarballFilename.replace(".tar.gz", "")
     for f in currentDir.rglob(f"{subDir}/*"):
-        click.echo(f"Moving {os.path.join(currentDir, subDir, f)} to {currentDir}")
-        shutil.move(os.path.join(currentDir, subDir, f), currentDir)
+        try:
+            shutil.move(os.path.join(currentDir, subDir, f), currentDir)
+        except Exception:
+            click.echo(f"WARNING: Unable to move {os.path.join(currentDir, subDir, f)} to {currentDir}...")
 
     click.echo("Removing tarball...")
     os.remove(tarballFilename)
