@@ -46,14 +46,13 @@ def main(options_str, package):
         try:
             shutil.move(os.path.join(currentDir, subDir, f), currentDir)
         except Exception:
+            # README.md in source will cause issues
+            # TODO: handle this in another directory..?
             click.echo(f"WARNING: Unable to move {os.path.join(currentDir, subDir, f)} to {currentDir}...")
 
 
     click.echo("Removing tarball...")
     os.remove(tarballFilename)
-
-    click.echo("Listing top-level of repo...")
-    subprocess.run(["ls", "-l", currentDir])
 
     patchFilePath = pathlib.Path(os.path.join(currentDir, "pypi-build", "patches", f"{package}.patch"))
     print(f"Looking for patch: {patchFilePath}")
@@ -69,6 +68,9 @@ def main(options_str, package):
 
       subprocess.run(["patch", "-p1"], input=patchData)
       
+    click.echo("Listing top-level of repo...")
+    subprocess.run(["ls", "-l", currentDir])
+
     if options_str:
       for field in shlex.split(options_str):
         args.append(field)
