@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - ".github/workflows/pypi-deb-build.yml"
+      - "pypi-build/scripts/pypi-build.py"
 
 env:
   DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
