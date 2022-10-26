@@ -74,6 +74,7 @@ jobs:
             !./python3-onnxruntime/output/*.tar.*
 
       - uses: pi-top/ghaction-packagecloud@main
+        if: github.ref == 'refs/heads/master'
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
           files: |
