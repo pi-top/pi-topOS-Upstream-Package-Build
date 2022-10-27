@@ -38,6 +38,18 @@ jobs:
           - package: "dlib"
             build_deps: "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
 
+          - package: "aiohttp"
+            sdist_dsc_options: "--depends3 python3-aiosignal,python3-async-timeout,python3-frozenlist,python3-charset-normalizer"
+
+          - package: "aiosignal"
+            sdist_dsc_options: "--depends3 python3-frozenlist"
+
+          - package: "async-timeout"
+
+          - package: "charset-normalizer"
+
+          - package: "frozenlist"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.2.0
@@ -81,6 +93,7 @@ jobs:
             !./artifacts/*.tar.xz
 
       - uses: pi-top/ghaction-packagecloud@main
+        if: github.ref == 'refs/heads/master'
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
           files: |

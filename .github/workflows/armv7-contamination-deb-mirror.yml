@@ -49,6 +49,7 @@ jobs:
           wget ${{ env.POOL_URL }}/${{ matrix.package }}_${{ env.QT5_DEB_VERSION }}.orig.tar.xz
 
       - uses: pi-top/ghaction-packagecloud@main
+        if: github.ref == 'refs/heads/master'
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
           files: ./*.${{ matrix.type }}
