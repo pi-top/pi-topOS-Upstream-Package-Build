@@ -39,10 +39,10 @@ jobs:
             build_deps: "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
 
           - package: "aiohttp"
-            sdist_dsc_options: "--depends3 python3-aiosignal,python3-async-timeout,python3-frozenlist,python3-charset-normalizer"
+            sdist_dsc_options: "--depends3 'python3-aiosignal (>= 1.1.2), python3-async-timeout (>= 4.0.0), python3-frozenlist(>= 1.1.1), python3-charset-normalizer (>= 2.0), python3-charset-normalizer (< 4), python3-multidict (>=4.5), python3-multidict(< 7), python3-yarl(>=1.0), python3-yarl (< 2), python3-typing-extensions (>= 3.7.4)'"
 
           - package: "aiosignal"
-            sdist_dsc_options: "--depends3 python3-frozenlist"
+            sdist_dsc_options: "--depends3 'python3-frozenlist (>=1.1.0)'"
 
           - package: "async-timeout"
 
@@ -64,8 +64,9 @@ jobs:
             -e BUILD_DEPENDENCIES="${{ matrix.build_deps }}" \
             --platform ${{ env.DOCKER_ARCH }} \
             pitop/pypi-build:latest \
+            bash -c "sudo apt update && \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package }} \
-              --options-str="${{ matrix.sdist_dsc_options }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}"
+              --options-str=\"${{ matrix.sdist_dsc_options }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" "
 
       - name: Generate artifact name
         run: |
