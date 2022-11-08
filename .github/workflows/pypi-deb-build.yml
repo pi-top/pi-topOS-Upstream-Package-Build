@@ -16,7 +16,6 @@ env:
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
   DISTRO: "bullseye"
-  DOCKER_ARCH: "linux/arm/v7"
 
 jobs:
   build-debian-package:
@@ -24,6 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        docker_architecture: ["linux/arm/v7", "linux/arm64"]
         package: ["click-logging", "imutils"]
         # sdist_dsc_options:
         #     https://github.com/astraw/stdeb#stdeb-distutils-command-options
@@ -63,7 +63,7 @@ jobs:
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
             -e BUILD_DEPENDENCIES="${{ matrix.build_deps }}" \
-            --platform ${{ env.DOCKER_ARCH }} \
+            --platform ${{ matrix.docker_architecture }} \
             pitop/pypi-build:latest \
             bash -c "sudo apt update && \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package }} \
