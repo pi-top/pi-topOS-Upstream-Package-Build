@@ -116,12 +116,30 @@ jobs:
             !./artifacts/*.deb
             !./artifacts/*.tar.xz
 
-      - uses: pi-top/ghaction-packagecloud@main
-        if: github.ref == 'refs/heads/master'
+      - name: Upload .dsc to PackageCloud
+        uses: pi-top/ghaction-packagecloud@main
+        # Only 1 .dsc is required for source so take armhf if there's multiple
+        if: |
+          (
+            github.ref == 'refs/heads/master' &&
+            (
+              matrix.architecture == 'amd64' ||
+              matrix.architecture == 'armhf'
+            )
+          )
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
           files: |
             ./artifacts/*.dsc
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+
+      - name: Upload .deb to PackageCloud
+        uses: pi-top/ghaction-packagecloud@main
+        if: github.ref == 'refs/heads/master'
+        with:
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+          files: |
             ./artifacts/*.deb
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
