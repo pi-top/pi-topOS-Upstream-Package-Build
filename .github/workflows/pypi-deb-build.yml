@@ -22,15 +22,6 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      # Default to host architecture for packages which do not require cross-compilation for ARM
-      #
-      # matrix.package[0] => name
-      # matrix.package[1] => architecture(s)
-      # matrix.package[2] => build dependencies
-      # matrix.package[3] => options
-      #   sdist_dsc_options:
-      #     https://github.com/astraw/stdeb#stdeb-distutils-command-options
-      #     https://github.com/astraw/stdeb#stdebcfg-configuration-file
       matrix:
         docker_architecture: ["linux/amd64"]
         package:
