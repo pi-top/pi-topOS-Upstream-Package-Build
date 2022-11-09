@@ -24,52 +24,62 @@ jobs:
       fail-fast: false
       matrix:
         docker_architecture:
-          - "linux/amd64"
+          - "linux/arm/v7"
+          - "linux/arm64"
+
         package:
-          - ["click-logging", "", ""]
-          - ["imutils", "", ""]
-          - ["async-timeout", "", ""]
-          - ["charset-normalizer", "", ""]
           - [
-              "python-osc",
-              "--package3 python3-osc",
+              "dlib",
+              "",
+              "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
+            ]
+          - [
+              "frozenlist",
+              "",
               ""
             ]
           - [
-              "python-sonic",
-              "--package3 python3-sonic --depends3 python3-osc",
+              "aiohttp",
+              "--depends3 'python3-aiosignal (>= 1.1.2), python3-async-timeout (>= 4.0.0), python3-frozenlist(>= 1.1.1), python3-charset-normalizer (>= 2.0), python3-charset-normalizer (< 4), python3-multidict (>=4.5), python3-multidict(< 7), python3-yarl(>=1.0), python3-yarl (< 2), python3-typing-extensions (>= 3.7.4)'",
               ""
             ]
-          - [
-              "aiosignal",
-              "--depends3 'python3-frozenlist (>=1.1.0)'",
-              ""
-            ]
+          
         include:
-          # Define packages which require cross-compilation here with ARM architectures
           - docker_architecture:
-              - "linux/arm/v7"
-              - "linux/arm64"
+              - "linux/amd64"
             package:
-              - "dlib"
-              - ""
-              - "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
+              - ["click-logging", "", ""]
 
           - docker_architecture:
-              - "linux/arm/v7"
-              - "linux/arm64"
+              - "linux/amd64"
             package:
-              - "frozenlist"
-              - ""
-              - ""
+              - ["imutils", "", ""]
 
           - docker_architecture:
-              - "linux/arm/v7"
-              - "linux/arm64"
+              - "linux/amd64"
             package:
-              - "aiohttp"
-              - "--depends3 'python3-aiosignal (>= 1.1.2), python3-async-timeout (>= 4.0.0), python3-frozenlist(>= 1.1.1), python3-charset-normalizer (>= 2.0), python3-charset-normalizer (< 4), python3-multidict (>=4.5), python3-multidict(< 7), python3-yarl(>=1.0), python3-yarl (< 2), python3-typing-extensions (>= 3.7.4)'"
-              - ""
+              - ["async-timeout", "", ""]
+
+          - docker_architecture:
+              - "linux/amd64"
+            package:
+              - ["charset-normalizer", "", ""]
+
+          - docker_architecture:
+              - "linux/amd64"
+            package:
+              - ["python-osc", "--package3 python3-osc", ""]
+
+          - docker_architecture:
+              - "linux/amd64"
+            package:
+              - ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
+
+          - docker_architecture:
+              - "linux/amd64"
+            package:
+              - ["aiosignal", "--depends3 'python3-frozenlist (>=1.1.0)'", ""]
+            ]
 
     steps:
       - name: Checkout code
