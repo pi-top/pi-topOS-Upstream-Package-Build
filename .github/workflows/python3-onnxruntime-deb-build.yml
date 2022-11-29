@@ -45,7 +45,7 @@ jobs:
           docker run -i \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
-            --platform linux/${{ matrix.docker_architecture }} \
+            --platform ${{ matrix.docker_architecture }} \
             ${{ env.OS }}:${{ env.DISTRO }} \
             /bin/bash -s <<EOF
               apt-get update
