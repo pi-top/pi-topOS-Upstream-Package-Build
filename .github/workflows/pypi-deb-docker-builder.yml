@@ -6,9 +6,6 @@ on:
     paths:
       - "pypi-build/Dockerfile"
       - ".github/workflows/pypi-deb-docker-builder.yml"
-  pull_request:
-    branches:
-      - master
 
 env:
   IMAGE_NAME: "pitop/pypi-build"
@@ -33,6 +30,7 @@ jobs:
           install: true
 
       - name: Login to Docker Hub
+        if: ${{ github.ref == 'refs/heads/master' }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -53,7 +51,7 @@ jobs:
         with:
           context: pypi-build
           platforms: ${{ env.PLATFORMS }}
-          push: true
+          push: ${{ github.ref == 'refs/heads/master' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
