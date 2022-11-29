@@ -6,6 +6,9 @@ on:
     paths:
       - "pypi-build/Dockerfile"
       - ".github/workflows/pypi-deb-docker-builder.yml"
+  pull_request:
+    branches:
+      - master
 
 env:
   IMAGE_NAME: "pitop/pypi-build"

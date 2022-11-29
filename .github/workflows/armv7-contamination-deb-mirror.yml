@@ -5,6 +5,9 @@ on:
   push:
     paths:
       - ".github/workflows/armv7-contamination-deb-mirror.yml"
+  pull_request:
+    branches:
+      - master
 
 env:
   QT5_DEB_VERSION: "5.15.2+dfsg"

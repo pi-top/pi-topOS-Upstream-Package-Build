@@ -7,6 +7,9 @@ on:
       - ".github/workflows/pypi-deb-build.yml"
       - "pypi-build/scripts"
       - "pypi-build/patches"
+  pull_request:
+    branches:
+      - master
 
 env:
   DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"

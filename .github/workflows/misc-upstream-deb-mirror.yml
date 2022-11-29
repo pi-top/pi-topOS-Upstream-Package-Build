@@ -5,6 +5,9 @@ on:
   push:
     paths:
       - ".github/workflows/misc-upstream-deb-mirror.yml"
+  pull_request:
+    branches:
+      - master
 
 env:
   DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
