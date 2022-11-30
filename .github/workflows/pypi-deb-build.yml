@@ -132,7 +132,7 @@ jobs:
 
       - name: Upload .deb to PackageCloud
         uses: pi-top/ghaction-packagecloud@main
-        if: github.ref == 'refs/heads/master'
+        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
           files: |
