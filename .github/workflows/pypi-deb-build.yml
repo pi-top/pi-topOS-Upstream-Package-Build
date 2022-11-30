@@ -49,32 +49,25 @@ jobs:
           
         include:
           - docker_architecture: "amd64"
-            package:
-              - ["click-logging", "", ""]
+            package: ["click-logging", "", ""]
 
           - docker_architecture: "amd64"
-            package:
-              - ["imutils", "", ""]
+            package: ["imutils", "", ""]
 
           - docker_architecture: "amd64"
-            package:
-              - ["async-timeout", "", ""]
+            package: ["async-timeout", "", ""]
 
           - docker_architecture: "amd64"
-            package:
-              - ["charset-normalizer", "", ""]
+            package: ["charset-normalizer", "", ""]
 
           - docker_architecture: "amd64"
-            package:
-              - ["python-osc", "--package3 python3-osc", ""]
+            package: ["python-osc", "--package3 python3-osc", ""]
 
           - docker_architecture: "amd64"
-            package:
-              - ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
+            package: ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
 
           - docker_architecture: "amd64"
-            package:
-              - ["aiosignal", "--depends3 'python3-frozenlist (>=1.1.0)'", ""]
+            package: ["aiosignal", "--depends3 'python3-frozenlist (>=1.1.0)'", ""]
 
     steps:
       - name: Checkout code
@@ -92,7 +85,7 @@ jobs:
             pitop/pypi-build:latest \
             bash -c "sudo apt update && \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package[0] }} \
-              --options-str=\"${{ matrix.package[3] }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" "
+              --options-str=\"${{ matrix.package[1] }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" "
 
       - name: Generate artifact name
         run: |
