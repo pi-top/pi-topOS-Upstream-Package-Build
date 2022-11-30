@@ -18,11 +18,20 @@ env:
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
   DISTRO: "bullseye"
-  ARCH: "linux/arm/v7"
 
 jobs:
   build-debian-package:
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - debian_architecture: "armhf"
+            docker_architecture: "linux/arm/v7"
+
+          - debian_architecture: "arm64"
+            docker_architecture: "linux/arm64"
+
     steps:
       # Checkout, only keep onnxruntime
       - name: Checkout code
@@ -36,7 +45,7 @@ jobs:
           docker run -i \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
-            --platform ${{ env.ARCH }} \
+            --platform ${{ matrix.docker_architecture }} \
             ${{ env.OS }}:${{ env.DISTRO }} \
             /bin/bash -s <<EOF
               apt-get update
@@ -44,7 +53,7 @@ jobs:
               apt-file update
               apt-get install -y debhelper dh-python python3-all-dev python3-setuptools python3-pip
               pip3 install wheel2deb
-              cd ./python3-onnxruntime
+              cd ./python3-onnxruntime/${{ matrix.debian_architecture }}
               wheel2deb --revision ${{ github.run_number }} --verbose
               wheel2deb build --verbose
           EOF
@@ -53,35 +62,35 @@ jobs:
 
       - name: Generate artifact name
         run: |
-          echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find ./python3-onnxruntime/output -name "*.dsc")")" >> $GITHUB_ENV
+          echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find ./python3-onnxruntime/${{ matrix.debian_architecture }}/output -name "*.dsc")")" >> $GITHUB_ENV
 
       - name: Upload binary package artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.deb
-          path: ./python3-onnxruntime/output/*.deb
+          path: ./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.deb
 
       - name: Upload source package artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.deb-src
-          path: ./python3-onnxruntime/output/*.tar.*
+          path: ./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.tar.*
 
       - name: Upload package build metadata artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.metadata
           path: |
-            ./python3-onnxruntime/output/**
-            !./python3-onnxruntime/output/*.deb
-            !./python3-onnxruntime/output/*.tar.*
+            ./python3-onnxruntime/${{ matrix.debian_architecture }}/output/**
+            !./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.deb
+            !./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.tar.*
 
       - uses: pi-top/ghaction-packagecloud@main
         if: github.ref == 'refs/heads/master'
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
           files: |
-            ./python3-onnxruntime/output/*.dsc
-            ./python3-onnxruntime/output/*.deb
+            ./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.dsc
+            ./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.deb
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}

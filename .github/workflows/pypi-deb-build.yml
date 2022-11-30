@@ -19,7 +19,6 @@ env:
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
   DISTRO: "bullseye"
-  DOCKER_ARCH: "linux/arm/v7"
 
 jobs:
   build-debian-package:
@@ -27,31 +26,55 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: ["click-logging", "imutils"]
-        # sdist_dsc_options:
-        #     https://github.com/astraw/stdeb#stdeb-distutils-command-options
-        #     https://github.com/astraw/stdeb#stdebcfg-configuration-file
+        docker_architecture:
+          - "arm/v7"
+          - "arm64"
+
+        package:
+          - [
+              "dlib",
+              "",
+              "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
+            ]
+          - [
+              "frozenlist",
+              "",
+              ""
+            ]
+          - [
+              "aiohttp",
+              "--depends3 'python3-aiosignal (>= 1.1.2), python3-async-timeout (>= 4.0.0), python3-frozenlist(>= 1.1.1), python3-charset-normalizer (>= 2.0), python3-charset-normalizer (< 4), python3-multidict (>=4.5), python3-multidict(< 7), python3-yarl(>=1.0), python3-yarl (< 2), python3-typing-extensions (>= 3.7.4)'",
+              ""
+            ]
+          
         include:
-          - package: "python-osc"
-            sdist_dsc_options: "--package3 python3-osc"
+          - docker_architecture: "amd64"
+            package:
+              - ["click-logging", "", ""]
 
-          - package: "python-sonic"
-            sdist_dsc_options: "--package3 python3-sonic --depends3 python3-osc"
+          - docker_architecture: "amd64"
+            package:
+              - ["imutils", "", ""]
 
-          - package: "dlib"
-            build_deps: "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
+          - docker_architecture: "amd64"
+            package:
+              - ["async-timeout", "", ""]
 
-          - package: "aiohttp"
-            sdist_dsc_options: "--depends3 'python3-aiosignal (>= 1.1.2), python3-async-timeout (>= 4.0.0), python3-frozenlist(>= 1.1.1), python3-charset-normalizer (>= 2.0), python3-charset-normalizer (< 4), python3-multidict (>=4.5), python3-multidict(< 7), python3-yarl(>=1.0), python3-yarl (< 2), python3-typing-extensions (>= 3.7.4)'"
+          - docker_architecture: "amd64"
+            package:
+              - ["charset-normalizer", "", ""]
 
-          - package: "aiosignal"
-            sdist_dsc_options: "--depends3 'python3-frozenlist (>=1.1.0)'"
+          - docker_architecture: "amd64"
+            package:
+              - ["python-osc", "--package3 python3-osc", ""]
 
-          - package: "async-timeout"
+          - docker_architecture: "amd64"
+            package:
+              - ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
 
-          - package: "charset-normalizer"
-
-          - package: "frozenlist"
+          - docker_architecture: "amd64"
+            package:
+              - ["aiosignal", "--depends3 'python3-frozenlist (>=1.1.0)'", ""]
 
     steps:
       - name: Checkout code
@@ -64,12 +87,12 @@ jobs:
           docker run -i \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
-            -e BUILD_DEPENDENCIES="${{ matrix.build_deps }}" \
-            --platform ${{ env.DOCKER_ARCH }} \
+            -e BUILD_DEPENDENCIES="${{ matrix.package[2] }}" \
+            --platform linux/${{ matrix.docker_architecture }} \
             pitop/pypi-build:latest \
             bash -c "sudo apt update && \
-            ./pypi-build/scripts/pypi-build.py ${{ matrix.package }} \
-              --options-str=\"${{ matrix.sdist_dsc_options }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" "
+            ./pypi-build/scripts/pypi-build.py ${{ matrix.package[0] }} \
+              --options-str=\"${{ matrix.package[3] }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" "
 
       - name: Generate artifact name
         run: |
@@ -96,12 +119,30 @@ jobs:
             !./artifacts/*.deb
             !./artifacts/*.tar.xz
 
-      - uses: pi-top/ghaction-packagecloud@main
-        if: github.ref == 'refs/heads/master'
+      - name: Upload .dsc to PackageCloud
+        uses: pi-top/ghaction-packagecloud@main
+        # Only 1 .dsc is required for source so take armhf if there's multiple
+        if: |
+          (
+            github.ref == 'refs/heads/master' &&
+            (
+              matrix.architecture == 'amd64' ||
+              matrix.architecture == 'armhf'
+            )
+          )
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
           files: |
             ./artifacts/*.dsc
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+
+      - name: Upload .deb to PackageCloud
+        uses: pi-top/ghaction-packagecloud@main
+        if: github.ref == 'refs/heads/master'
+        with:
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+          files: |
             ./artifacts/*.deb
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}

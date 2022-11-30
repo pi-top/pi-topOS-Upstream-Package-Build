@@ -22,6 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        debian_architecture: ["armhf", "arm64"]
         include:
           - repo: "AndrewFromMelbourne/raspi2png"
             # get last commit
@@ -68,7 +69,7 @@ jobs:
         run: |
           target_architecture=amd64
           if grep '^Architecture:' debian/control | grep -q -v 'all'; then
-            target_architecture=armhf
+            target_architecture=${{ matrix.debian_architecture }}
           fi
           echo "TARGET_ARCHITECTURE=${target_architecture}" >> $GITHUB_ENV
 
