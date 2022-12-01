@@ -105,6 +105,7 @@ jobs:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
       - name: Upload .deb to PackageCloud
+        if: ${{ github.ref == 'refs/heads/master' }}
         uses: pi-top/ghaction-packagecloud@main
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
