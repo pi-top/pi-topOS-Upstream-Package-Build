@@ -69,6 +69,9 @@ jobs:
           - docker_architecture: "amd64"
             package: ["aiosignal", "--depends3 'python3-frozenlist (>=1.1.0)'", ""]
 
+          - docker_architecture: "amd64"
+            package: ["smbus2", "", ""]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.2.0
