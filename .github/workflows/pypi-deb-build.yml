@@ -46,6 +46,11 @@ jobs:
               "--depends3 'python3-aiosignal (>= 1.1.2), python3-async-timeout (>= 4.0.0), python3-frozenlist(>= 1.1.1), python3-charset-normalizer (>= 2.0), python3-charset-normalizer (< 4), python3-multidict (>=4.5), python3-multidict(< 7), python3-yarl(>=1.0), python3-yarl (< 2), python3-typing-extensions (>= 3.7.4)'",
               ""
             ]
+          # - [
+          #     "dbus-fast",
+          #     "--package3 python3-dbus-fast",
+          #     "cython3 libusb-1.0-0-dev libudev-dev"
+          #   ]
           
         include:
           - docker_architecture: "amd64"
@@ -72,9 +77,15 @@ jobs:
           - docker_architecture: "amd64"
             package: ["smbus2", "", ""]
 
+          - docker_architecture: "amd64"
+            package: ["godirect", "--package3 python3-godirect --depends3 'python3-hidapi' --depends3 'python3-bleak'", ""]
+
+          - docker_architecture: "amd64"
+            package: ["bleak", "--package3 python3-bleak --depends3 'python3-async-timeout' --depends3 'python3-typing-extensions' --depends3 'python3-dbus-fast'", ""]
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.2.0
+        uses: actions/checkout@v3
 
       - name: Build in ARM Docker container
         run: |
@@ -95,25 +106,28 @@ jobs:
           echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find . -name "*.dsc")")" >> $GITHUB_ENV
 
       - name: Upload binary package artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.deb
           path: ./artifacts/*.deb
+          if-no-files-found: error
 
       - name: Upload source package artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.deb-src
           path: ./artifacts/*.tar.xz
+          if-no-files-found: error
 
       - name: Upload package build metadata artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.metadata
           path: |
             ./artifacts/**
             !./artifacts/*.deb
             !./artifacts/*.tar.xz
+          if-no-files-found: error
 
       - name: Upload .dsc to PackageCloud
         uses: pi-top/ghaction-packagecloud@main

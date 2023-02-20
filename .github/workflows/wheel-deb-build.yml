@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ".github/workflows/python3-onnxruntime-deb-build.yml"
-      - "python3-onnxruntime/*.whl"
+      - ".github/workflows/wheel-deb-build.yml"
+      - "wheels"
   pull_request:
     branches:
       - master
@@ -25,17 +25,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - debian_architecture: "armhf"
-            docker_architecture: "linux/arm/v7"
+        package: ["python3-onnxruntime", "python3-hidapi"]
+        debian_architecture: ["armhf", "arm64"]
+        docker_architecture: ["linux/arm/v7", "linux/arm64"]
 
+        exclude:
           - debian_architecture: "arm64"
+            docker_architecture: "linux/arm/v7"
+          - debian_architecture: "armhf"
             docker_architecture: "linux/arm64"
 
     steps:
-      # Checkout, only keep onnxruntime
       - name: Checkout code
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3
 
       - name: Build in ARM Docker container
         run: |
@@ -53,7 +55,8 @@ jobs:
               apt-file update
               apt-get install -y debhelper dh-python python3-all-dev python3-setuptools python3-pip
               pip3 install wheel2deb
-              cd ./python3-onnxruntime/${{ matrix.debian_architecture }}
+              pip3 install packaging==21.3
+              cd ./wheels/${{ matrix.package }}/${{ matrix.debian_architecture }}
               wheel2deb --revision ${{ github.run_number }} --verbose
               wheel2deb build --verbose
           EOF
@@ -62,28 +65,31 @@ jobs:
 
       - name: Generate artifact name
         run: |
-          echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find ./python3-onnxruntime/${{ matrix.debian_architecture }}/output -name "*.dsc")")" >> $GITHUB_ENV
+          echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find ./wheels/${{ matrix.package }}/${{ matrix.debian_architecture }}/output -name "*.dsc")")" >> $GITHUB_ENV
 
       - name: Upload binary package artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.deb
-          path: ./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.deb
+          path: ./wheels/${{ matrix.package }}/${{ matrix.debian_architecture }}/output/*.deb
+          if-no-files-found: error
 
       - name: Upload source package artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.deb-src
-          path: ./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.tar.*
+          path: ./wheels/${{ matrix.package }}/${{ matrix.debian_architecture }}/output/*.tar.*
+          if-no-files-found: error
 
       - name: Upload package build metadata artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.metadata
           path: |
-            ./python3-onnxruntime/${{ matrix.debian_architecture }}/output/**
-            !./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.deb
-            !./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.tar.*
+            ./wheels/${{ matrix.package }}/${{ matrix.debian_architecture }}/output/**
+            !./wheels/${{ matrix.package }}/${{ matrix.debian_architecture }}/output/*.deb
+            !./wheels/${{ matrix.package }}/${{ matrix.debian_architecture }}/output/*.tar.*
+          if-no-files-found: error
 
       - name: Upload .dsc to PackageCloud
         uses: pi-top/ghaction-packagecloud@main
@@ -100,7 +106,7 @@ jobs:
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
           files: |
-            ./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.dsc
+            ./wheels/${{ matrix.package }}/${{ matrix.debian_architecture }}/output/*.dsc
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
@@ -110,6 +116,6 @@ jobs:
         with:
           repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
           files: |
-            ./python3-onnxruntime/${{ matrix.debian_architecture }}/output/*.deb
+            ./wheels/${{ matrix.package }}/${{ matrix.debian_architecture }}/output/*.deb
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
