@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: ["python3-onnxruntime", "python3-hidapi", "python3-dbus-fast"]
+        package: ["python3-onnxruntime", "python3-dbus-fast"]
         debian_architecture: ["armhf", "arm64"]
         docker_architecture: ["linux/arm/v7", "linux/arm64"]
 
