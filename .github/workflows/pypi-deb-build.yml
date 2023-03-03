@@ -72,9 +72,15 @@ jobs:
           - docker_architecture: "amd64"
             package: ["smbus2", "", ""]
 
+          - docker_architecture: "amd64"
+            package: ["godirect", "--package3 python3-godirect --depends3 'python3-hidapi, python3-bleak'", ""]
+
+          - docker_architecture: "amd64"
+            package: ["bleak", "--package3 python3-bleak --depends3 'python3-async-timeout, python3-typing-extensions, python3-dbus-fast'", ""]
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.2.0
+        uses: actions/checkout@v3
 
       - name: Build in ARM Docker container
         run: |
@@ -95,25 +101,28 @@ jobs:
           echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find . -name "*.dsc")")" >> $GITHUB_ENV
 
       - name: Upload binary package artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.deb
           path: ./artifacts/*.deb
+          if-no-files-found: error
 
       - name: Upload source package artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.deb-src
           path: ./artifacts/*.tar.xz
+          if-no-files-found: error
 
       - name: Upload package build metadata artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_PREFIX }}.metadata
           path: |
             ./artifacts/**
             !./artifacts/*.deb
             !./artifacts/*.tar.xz
+          if-no-files-found: error
 
       - name: Upload .dsc to PackageCloud
         uses: pi-top/ghaction-packagecloud@main
