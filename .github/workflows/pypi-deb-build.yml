@@ -78,6 +78,12 @@ jobs:
           - docker_architecture: "amd64"
             package: ["bleak", "--package3 python3-bleak --depends3 'python3-async-timeout, python3-typing-extensions, python3-dbus-fast'", ""]
 
+          - docker_architecture: "amd64"
+            package: ["bless", "--package3 python3-bless --depends3 'python3-bleak, python3-dbus-next'", ""]
+
+          - docker_architecture: "amd64"
+            package: ["dbus-next", "--package3 python3-dbus-next", ""]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
