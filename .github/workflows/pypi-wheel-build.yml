@@ -1,0 +1,52 @@
+name: Wheel builds for Python Packages from PyPI
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/pypi-wheel-build.yml"
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-debian-package:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: ["bullseye", "bookworm"]
+        architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
+        package:
+          - ["bluez-peripheral", "", ""]
+          - ["dbus-fast", "", ""]
+          - ["imutils", "", ""]
+          - ["python-osc", "", ""]
+          - ["typing-extensions", "", ""]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build in ARM Docker container
+        run: |
+          docker run --rm --privileged tonistiigi/binfmt --install all
+
+          docker run -i \
+            --volume ${{ github.workspace }}:${{ github.workspace }} \
+            --workdir=${{ github.workspace }} \
+            -e BUILD_DEPENDENCIES="${{ matrix.package[2] }}" \
+            --platform ${{ matrix.architecture.docker }} \
+            pitop/pypi-build:${{ matrix.distro }}-bookworm-support \
+            bash -c "sudo apt update && \
+            sudo chown -R nonroot:nonroot . && \
+            ./pypi-build/scripts/pypi-build-wheel.sh ${{ matrix.package[0] }} artifacts/${{ matrix.package[0] }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/ && \
+            ls -lR artifacts"
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v3
+        with:
+          name: "wheels"
+          path: "artifacts/"
+          if-no-files-found: error
+

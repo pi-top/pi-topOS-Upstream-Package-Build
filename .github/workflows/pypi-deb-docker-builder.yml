@@ -14,6 +14,9 @@ env:
 jobs:
   build-push-docker-hub:
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        base_image: ['bullseye', 'bookworm']
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -40,7 +43,8 @@ jobs:
         uses: docker/metadata-action@v4.3.0
         with:
           images: ${{ env.IMAGE_NAME }}
-          flavor: latest=${{ github.ref == 'refs/heads/master' }}
+          flavor: |
+            prefix=${{ matrix.base_image }}-,onlatest=false
           tags: |
             type=ref,event=branch
 
@@ -51,6 +55,7 @@ jobs:
           context: pypi-build
           platforms: ${{ env.PLATFORMS }}
           push: true
+          build-args: DEBIAN_BASE_IMAGE=${{ matrix.base_image }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 

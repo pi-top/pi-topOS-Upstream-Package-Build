@@ -1,10 +1,16 @@
-FROM debian:bullseye
+ARG DEBIAN_BASE_IMAGE=bullseye
+
+FROM debian:$DEBIAN_BASE_IMAGE
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y debhelper dh-python python3-all-dev python3-pip sudo libffi-dev libssl-dev pkg-config && \
-    pip3 install stdeb requests click toml
+    apt-get install -y debhelper dh-python python3-all-dev python3-pip sudo libffi-dev libssl-dev pkg-config
+
+ENV PY_EXT_MANAGED_FILE="/usr/lib/python3.11/EXTERNALLY-MANAGED"
+RUN rm -r $PY_EXT_MANAGED_FILE || true
+
+RUN pip3 install stdeb requests click toml
 
 RUN python3 -m pip install --upgrade pip
 
