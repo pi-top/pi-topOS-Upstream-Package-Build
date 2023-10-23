@@ -99,6 +99,7 @@ jobs:
             --platform linux/${{ matrix.docker_architecture }} \
             pitop/pypi-build:latest \
             bash -c "sudo apt update && \
+            sudo cp -r ./pypi-build/files/* / && \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package[0] }} \
               --options-str=\"${{ matrix.package[1] }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" "
 
