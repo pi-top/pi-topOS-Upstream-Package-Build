@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
-        package: ["python3-onnxruntime", "python3-dbus-fast", "python3-typing-extensions"]
+        package: ["python3-onnxruntime", "python3-dbus-fast", "python3-typing-extensions", "python3-bluez-peripheral"]
 
     steps:
       - name: Checkout code

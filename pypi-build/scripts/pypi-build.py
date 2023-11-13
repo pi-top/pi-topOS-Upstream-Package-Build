@@ -29,7 +29,7 @@ def build_using_poetry(pyproject_file):
     proc = subprocess.run(poetry_build, cwd=parent)
 
     if proc.returncode != 0:
-        print("Failed to build using poetry")
+        raise Exception("Failed to build using poetry")
         return ""
 
     # Get path to tarball
