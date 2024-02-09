@@ -46,7 +46,7 @@ jobs:
               "--depends3 'python3-aiosignal (>= 1.1.2), python3-async-timeout (>= 4.0.0), python3-frozenlist(>= 1.1.1), python3-charset-normalizer (>= 2.0), python3-charset-normalizer (< 4), python3-multidict (>=4.5), python3-multidict(< 7), python3-yarl(>=1.0), python3-yarl (< 2), python3-typing-extensions (>= 3.7.4)'",
               ""
             ]
-          
+
         include:
           - docker_architecture: "amd64"
             package: ["click-logging", "", ""]
@@ -91,7 +91,7 @@ jobs:
             --workdir=${{ github.workspace }} \
             -e BUILD_DEPENDENCIES="${{ matrix.package[2] }}" \
             --platform linux/${{ matrix.docker_architecture }} \
-            pitop/pypi-build:latest \
+            pitop/pypi-build:SWE-180-bluetooth-connection \
             bash -c "sudo apt update && \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package[0] }} \
               --options-str=\"${{ matrix.package[1] }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" "

@@ -25,16 +25,21 @@ External [SDK](https://github.com/pi-top/pi-top-Python-SDK) dependencies:
     * Basic image processing convenience functions
 * [`dlib`](https://pypi.org/project/dlib)
     * Real-world machine learning and data analysis application toolkit
+* [`onnxruntime`](https://pypi.org/project/onnxruntime)
+    * Cross-platform, high performance ML inferencing and training accelerator. Currently, the wheel is being generated on a Raspberry Pi 4 and uploaded into this repository manually. This then uses [`wheel2deb`](https://github.com/upciti/wheel2deb) to create a Debian binary package.
 
 User libraries:
 * [`python-sonic`](https://pypi.org/project/python-sonic)
-    * Interface with Sonic Pi via Python
+    * Interface with Sonic Pi via Python.
 * [`python-osc`](https://pypi.org/project/python-osc)
-    * Dependency of `python-sonic`
-
-#### [ONNX Runtime](https://github.com/microsoft/onnxruntime)
-
-ONNX Runtime is a cross-platform, high performance ML inferencing and training accelerator. This is used by the [SDK](https://github.com/pi-top/pi-top-Python-SDK). Currently, the wheel is being generated on a Raspberry Pi 4 and uploaded into this repository manually. This then uses [`wheel2deb`](https://github.com/upciti/wheel2deb) to create a Debian binary package.
+    * Dependency of `python-sonic`.
+* [`python3-typing-extensions`](https://pypi.org/project/typing-extensions)
+    * Dependency of `python3-aiohttp`, which is a dependency of `further-link`.
+    * Re packaged since we require a newer version than what's available on RPi repos.
+* [`python3-bluez-peripheral`](https://pypi.org/project/bluez-peripheral)
+    * Dependency of `further-link`.
+* [`python3-dbus-next`](https://pypi.org/project/dbus-next)
+    * Dependency of `python3-bluez-peripheral`.
 
 ### Miscellaneous Upstream Rebuilds
 
