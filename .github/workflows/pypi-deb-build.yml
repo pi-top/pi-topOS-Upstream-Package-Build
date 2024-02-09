@@ -91,7 +91,7 @@ jobs:
             --workdir=${{ github.workspace }} \
             -e BUILD_DEPENDENCIES="${{ matrix.package[2] }}" \
             --platform linux/${{ matrix.docker_architecture }} \
-            pitop/pypi-build:SWE-180-bluetooth-connection \
+            pitop/pypi-build:latest \
             bash -c "sudo apt update && \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package[0] }} \
               --options-str=\"${{ matrix.package[1] }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" "
