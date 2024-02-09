@@ -30,13 +30,16 @@ External [SDK](https://github.com/pi-top/pi-top-Python-SDK) dependencies:
 
 User libraries:
 * [`python-sonic`](https://pypi.org/project/python-sonic)
-    * Interface with Sonic Pi via Python
+    * Interface with Sonic Pi via Python.
 * [`python-osc`](https://pypi.org/project/python-osc)
-    * Dependency of `python-sonic`
+    * Dependency of `python-sonic`.
 * [`python3-typing-extensions`](https://pypi.org/project/typing-extensions)
-    * Dependency of `python-sonic`
+    * Dependency of `python3-aiohttp`, which is a dependency of `further-link`.
+    * Re packaged since we require a newer version than what's available on RPi repos.
 * [`python3-bluez-peripheral`](https://pypi.org/project/bluez-peripheral)
-    * Dependency of `further-link`
+    * Dependency of `further-link`.
+* [`python3-dbus-next`](https://pypi.org/project/dbus-next)
+    * Dependency of `python3-bluez-peripheral`.
 
 ### Miscellaneous Upstream Rebuilds
 
