@@ -73,10 +73,7 @@ jobs:
             package: ["smbus2", "", ""]
 
           - docker_architecture: "amd64"
-            package: ["godirect", "--package3 python3-godirect --depends3 'python3-hidapi, python3-bleak'", ""]
-
-          - docker_architecture: "amd64"
-            package: ["bleak", "--package3 python3-bleak --depends3 'python3-async-timeout, python3-typing-extensions, python3-dbus-fast'", ""]
+            package: ["dbus-next", "", ""]
 
     steps:
       - name: Checkout code
