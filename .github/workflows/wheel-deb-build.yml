@@ -1,4 +1,4 @@
-name: Debian Packaging for CPython Packages from pre-built Python wheels
+name: Build wheels
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ env:
   OS: "debian"
 
 jobs:
-  build-debian-package:
+  build-wheels:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false

@@ -1,4 +1,4 @@
-name: Wheel builds for Python Packages from PyPI
+name: Build debs from wheels
 
 on:
   workflow_dispatch:
@@ -9,8 +9,12 @@ on:
     branches:
       - master
 
+env:
+  DOCKER_IMAGE_NAME: "pitop/pypi-build"
+  DOCKER_IMAGE_BRANCH: "bookworm-support"
+
 jobs:
-  build-debian-package:
+  build-debs-from-wheels:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -37,7 +41,7 @@ jobs:
             --workdir=${{ github.workspace }} \
             -e BUILD_DEPENDENCIES="${{ matrix.package[2] }}" \
             --platform ${{ matrix.architecture.docker }} \
-            pitop/pypi-build:${{ matrix.distro }}-bookworm-support \
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.distro }}-${{ env.DOCKER_IMAGE_BRANCH}} \
             bash -c "sudo apt update && \
             sudo chown -R nonroot:nonroot . && \
             ./pypi-build/scripts/pypi-build-wheel.sh ${{ matrix.package[0] }} artifacts/${{ matrix.package[0] }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/ && \

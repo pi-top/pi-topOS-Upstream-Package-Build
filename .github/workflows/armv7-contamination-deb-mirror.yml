@@ -19,7 +19,7 @@ env:
   POOL_URL: "http://deb.debian.org/debian/pool/main/q/qtwebengine-opensource-src"
 
 jobs:
-  build-debian-package:
+  build-armv7-contaminated:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
