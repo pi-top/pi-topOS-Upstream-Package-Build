@@ -55,7 +55,15 @@ def handle_non_setuptools_package(extracted_folder):
     if pyproject_file.exists():
         print("pyproject.toml found!")
 
-        new_tarball = build_using_poetry(pyproject_file)
+        new_tarball = ""
+
+        # try build using poetry
+        try:
+            new_tarball = build_using_poetry(pyproject_file)
+        except Exception as e:
+            print(f"Error building using poetry: {e}")
+            new_tarball = ""
+
         if new_tarball != "":
             # move tarball to root of repo and cleanup
             dst = os.path.join(os.getcwd(), new_tarball.split("/")[-1])
@@ -125,6 +133,9 @@ def _main(options_str, package, path_to_tarball):
         path_to_tarball = handle_non_setuptools_package(extracted_folder)
         if pathlib.Path(path_to_tarball).exists():
             return _main(options_str, package, path_to_tarball)
+
+        print("Failed to build package, try building wheel manually")
+        exit(1)
 
     if pathlib.Path(path_to_tarball).is_file():
         pathlib.Path(path_to_tarball).unlink(missing_ok=True)

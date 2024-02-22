@@ -12,68 +12,41 @@ on:
       - master
 
 env:
-  DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
-  DEB_BUILD_DOCKER_TAG: "bullseye-master"
+  
+  PYPI_BUILD_DOCKER_IMAGE: "pitop/pypi-build"
+  PYPI_BUILD_DOCKER_BRANCH: "master"
   CHANGELOG_AUTHOR_NAME: "pi-top"
   CHANGELOG_AUTHOR_EMAIL: "deb-maintainers@pi-top.com"
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
-  DISTRO: "bullseye"
 
 jobs:
-  build-debian-package:
+  build-from-pypi:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        docker_architecture:
-          - "arm/v7"
-          - "arm64"
-
+        distro: ["bullseye", "bookworm"]
+        docker_architecture: ["arm/v7", "arm64", "amd64"]
         package:
-          - [
-              "dlib",
-              "",
-              "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev"
-            ]
-          - [
-              "frozenlist",
-              "",
-              ""
-            ]
-          - [
-              "aiohttp",
-              "--depends3 'python3-aiosignal (>= 1.1.2), python3-async-timeout (>= 4.0.0), python3-frozenlist(>= 1.1.1), python3-charset-normalizer (>= 2.0), python3-charset-normalizer (< 4), python3-multidict (>=4.5), python3-multidict(< 7), python3-yarl(>=1.0), python3-yarl (< 2), python3-typing-extensions (>= 3.7.4)'",
-              ""
-            ]
+          - ["dlib", "", "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev" ]
+          - ["click-logging", "", ""]
+          - ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
 
-        include:
+        exclude:
+          # dlib only in arm/v7 && arm64
           - docker_architecture: "amd64"
+            package: [ "dlib", "", "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev" ]
+          # click-logging only in amd64
+          - docker_architecture: "arm64"
             package: ["click-logging", "", ""]
-
-          - docker_architecture: "amd64"
-            package: ["imutils", "", ""]
-
-          - docker_architecture: "amd64"
-            package: ["async-timeout", "", ""]
-
-          - docker_architecture: "amd64"
-            package: ["charset-normalizer", "", ""]
-
-          - docker_architecture: "amd64"
-            package: ["python-osc", "--package3 python3-osc", ""]
-
-          - docker_architecture: "amd64"
+          - docker_architecture: "arm/v7"
+            package: ["click-logging", "", ""]
+          # python-sonic only in amd64
+          - docker_architecture: "arm/v7"
             package: ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
-
-          - docker_architecture: "amd64"
-            package: ["aiosignal", "--depends3 'python3-frozenlist (>=1.1.0)'", ""]
-
-          - docker_architecture: "amd64"
-            package: ["smbus2", "", ""]
-
-          - docker_architecture: "amd64"
-            package: ["dbus-next", "", ""]
+          - docker_architecture: "arm64"
+            package: ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
 
     steps:
       - name: Checkout code
@@ -88,10 +61,13 @@ jobs:
             --workdir=${{ github.workspace }} \
             -e BUILD_DEPENDENCIES="${{ matrix.package[2] }}" \
             --platform linux/${{ matrix.docker_architecture }} \
-            pitop/pypi-build:latest \
+            ${{ env.PYPI_BUILD_DOCKER_IMAGE }}:${{ matrix.distro }}-${{ env.PYPI_BUILD_DOCKER_BRANCH }} \
             bash -c "sudo apt update && \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package[0] }} \
-              --options-str=\"${{ matrix.package[1] }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" "
+              --options-str=\"${{ matrix.package[1] }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" && \
+            mkdir -p ${{ matrix.package[0] }}/${{ matrix.distro }}/ && \
+            mv artifacts/* ${{ matrix.package[0] }}/${{ matrix.distro }}/ && \
+            ls -l ${{ matrix.package[0] }}/${{ matrix.distro }}/"
 
       - name: Generate artifact name
         run: |
@@ -100,25 +76,25 @@ jobs:
       - name: Upload binary package artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.ARTIFACT_PREFIX }}.deb
-          path: ./artifacts/*.deb
+          name: ${{ matrix.distro }}.deb
+          path: "./${{ matrix.package[0] }}/${{ matrix.distro }}/*.deb"
           if-no-files-found: error
 
       - name: Upload source package artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.ARTIFACT_PREFIX }}.deb-src
-          path: ./artifacts/*.tar.xz
+          name: ${{ matrix.distro}}.deb-src
+          path: "./${{ matrix.package[0] }}/${{ matrix.distro }}/*.tar.xz"
           if-no-files-found: error
 
       - name: Upload package build metadata artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.ARTIFACT_PREFIX }}.metadata
+          name: ${{ matrix.distro }}.metadata
           path: |
-            ./artifacts/**
-            !./artifacts/*.deb
-            !./artifacts/*.tar.xz
+            ./${{ matrix.package[0] }}/${{ matrix.distro }}/**
+            !./${{ matrix.package[0] }}/${{ matrix.distro }}/*.deb
+            !./${{ matrix.package[0] }}/${{ matrix.distro }}/*.tar.xz
           if-no-files-found: error
 
       - name: Upload .dsc to PackageCloud
@@ -133,9 +109,9 @@ jobs:
             )
           )
         with:
-          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ matrix.distro }}
           files: |
-            ./artifacts/*.dsc
+            ./${{ matrix.package[0] }}/${{ matrix.distro }}/*.dsc
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
@@ -143,8 +119,8 @@ jobs:
         uses: pi-top/ghaction-packagecloud@main
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
-          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ matrix.distro }}
           files: |
-            ./artifacts/*.deb
+            ./${{ matrix.package[0] }}/${{ matrix.distro }}/*.deb
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}

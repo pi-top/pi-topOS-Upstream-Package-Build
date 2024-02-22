@@ -11,18 +11,18 @@ on:
 
 env:
   DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
-  DEB_BUILD_DOCKER_TAG: "bullseye-master"
+  DEB_BUILD_DOCKER_BRANCH: "master"
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
-  DISTRO: "bullseye"
 
 jobs:
-  build-debian-package:
+  build-upstream:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
         debian_architecture: ["armhf", "arm64"]
+        distro: ["bullseye", "bookworm"]
         include:
           - repo: "AndrewFromMelbourne/raspi2png"
             # get last commit
@@ -77,7 +77,7 @@ jobs:
         uses: pi-top/debian-package-build-action@master
         with:
           target_architecture: ${{ env.TARGET_ARCHITECTURE }}
-          docker_image: ${{ env.DEB_BUILD_DOCKER_IMAGE }}:${{ env.DEB_BUILD_DOCKER_TAG }}
+          docker_image: ${{ env.DEB_BUILD_DOCKER_IMAGE }}:${{ matrix.distro}}-${{ env.DEB_BUILD_DOCKER_BRANCH }}
           signing_key: ${{ secrets.DEB_SIGNING_GPG_KEY }}
           signing_passphrase: ${{ secrets.DEB_SIGNING_GPG_PASSPHRASE }}
           build_directory: ./artifacts
@@ -94,19 +94,19 @@ jobs:
       - name: Upload binary package artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.ARTIFACT_PREFIX }}.deb
+          name: ${{ matrix.distro}}_${{ env.ARTIFACT_PREFIX }}.deb
           path: ./artifacts/*.deb
 
       - name: Upload source package artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.ARTIFACT_PREFIX }}.deb-src
+          name: ${{ matrix.distro}}_${{ env.ARTIFACT_PREFIX }}.deb-src
           path: ./artifacts/*.tar.xz
 
       - name: Upload package build metadata artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.ARTIFACT_PREFIX }}.metadata
+          name: ${{ matrix.distro}}_${{ env.ARTIFACT_PREFIX }}.metadata
           path: |
             ./artifacts/**
             !./artifacts/*.deb
@@ -125,7 +125,7 @@ jobs:
 
           )
         with:
-          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ matrix.distro}}
           files: |
             ./artifacts/*.dsc
         env:
@@ -135,7 +135,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/master' }}
         uses: pi-top/ghaction-packagecloud@main
         with:
-          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ matrix.distro }}
           files: |
             ./artifacts/*.deb
         env:

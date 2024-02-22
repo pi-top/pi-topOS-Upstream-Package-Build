@@ -1,4 +1,4 @@
-name: Debian Packaging for CPython Packages from pre-built Python wheels
+name: Build debs from wheels in repo
 
 on:
   workflow_dispatch:
@@ -11,22 +11,18 @@ on:
       - master
 
 env:
-  DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
-  DEB_BUILD_DOCKER_TAG: "bullseye-master"
-  CHANGELOG_AUTHOR_NAME: "pi-top"
-  CHANGELOG_AUTHOR_EMAIL: "deb-maintainers@pi-top.com"
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
-  DISTRO: "bullseye"
 
 jobs:
-  build-debian-package:
+  build-debs-from-wheels:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
         architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
-        package: ["python3-onnxruntime", "python3-typing-extensions", "python3-bluez-peripheral"]
+        package: ["python3-onnxruntime", "python3-typing-extensions", "python3-bluez-peripheral", "python3-osc", "python3-imutils"]
+        distro: ["bullseye", "bookworm"]
 
     steps:
       - name: Checkout code
@@ -34,10 +30,10 @@ jobs:
 
       - name: Check wheel exists for architecture
         run: |
-          echo "FOUND_WHEELS=$(ls -1 ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }} 2>/dev/null | wc -l | xargs)" >>$GITHUB_ENV
+          echo "WHEEL_FILES_FOUND=$(ls -1 ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }} 2>/dev/null | wc -l | xargs)" >> "$GITHUB_ENV"
 
       - name: Build in ARM Docker container
-        if: ${{ env.FOUND_WHEELS == 1 }}
+        if: env.WHEEL_FILES_FOUND == '1'
         run: |
           ls -lR
           docker run --rm --privileged tonistiigi/binfmt --install all
@@ -46,47 +42,47 @@ jobs:
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
             --platform ${{ matrix.architecture.docker }} \
-            ${{ env.OS }}:${{ env.DISTRO }} \
+            ${{ env.OS }}:${{ matrix.distro }} \
             /bin/bash -s <<EOF
               apt-get update
               apt install -y python3-apt apt-file dpkg-dev fakeroot build-essential devscripts debhelper
               apt-file update
               apt-get install -y debhelper dh-python python3-all-dev python3-setuptools python3-pip
-              pip3 install wheel2deb
+              # Allow pip installing on python3.11
+              rm -r /usr/lib/python3.11/EXTERNALLY-MANAGED || true
+              if [[ ${{ matrix.distro }} == 'bookworm' ]]; then
+                # On bookworm, install latest version of wheel2deb ; latest in pypi doesn't support python 3.11
+                pip3 install wheel2deb==0 -i https://packagecloud.io/pi-top/pypi/pypi/simple --extra-index-url https://pypi.python.org/simple
+              else
+                pip3 install wheel2deb
+              fi
               pip3 install packaging==21.3
-              cd ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}
-              wheel2deb --revision ${{ github.run_number }} --verbose
+              cd ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}
+              wheel2deb --verbose
               wheel2deb build --verbose
           EOF
 
-          ls -lR
+          ls -l ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output
 
       - name: Generate artifact name
+        if: env.WHEEL_FILES_FOUND == '1'
         run: |
-          echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/output -name "*.dsc")")" >> $GITHUB_ENV
+          echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output -name "*.dsc")")" >> $GITHUB_ENV
 
       - name: Upload binary package artifacts
+        if: env.WHEEL_FILES_FOUND == '1'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.ARTIFACT_PREFIX }}.deb
-          path: ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/output/*.deb
+          name: ${{ matrix.distro }}.deb
+          path: ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.deb
           if-no-files-found: error
 
       - name: Upload source package artifacts
+        if: env.WHEEL_FILES_FOUND == '1'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.ARTIFACT_PREFIX }}.deb-src
-          path: ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/output/*.tar.*
-          if-no-files-found: error
-
-      - name: Upload package build metadata artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.ARTIFACT_PREFIX }}.metadata
-          path: |
-            ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/output/**
-            !./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/output/*.deb
-            !./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/output/*.tar.*
+          name: ${{ matrix.distro }}.deb-src
+          path: ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.tar.*
           if-no-files-found: error
 
       - name: Upload .dsc to PackageCloud
@@ -94,6 +90,7 @@ jobs:
         # Only 1 .dsc is required for source so take armhf if there's multiple
         if: |
           (
+            env.WHEEL_FILES_FOUND == '1' &&
             github.ref == 'refs/heads/master' &&
             (
               matrix.architecture.debian == 'amd64' ||
@@ -102,18 +99,18 @@ jobs:
 
           )
         with:
-          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ matrix.distro }}
           files: |
-            ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/output/*.dsc
+            ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.dsc
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
       - name: Upload .deb to PackageCloud
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: github.ref == 'refs/heads/master' && env.WHEEL_FILES_FOUND == '1'
         uses: pi-top/ghaction-packagecloud@main
         with:
-          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ matrix.distro }}
           files: |
-            ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/output/*.deb
+            ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.deb
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
