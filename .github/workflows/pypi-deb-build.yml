@@ -12,8 +12,9 @@ on:
       - master
 
 env:
-  DEB_BUILD_DOCKER_IMAGE: "pitop/pi-top-os-deb-build"
-  DEB_BUILD_DOCKER_TAG: "bullseye-master"
+  
+  PYPI_BUILD_DOCKER_IMAGE: "pitop/pypi-build"
+  PYPI_BUILD_DOCKER_BRANCH: "master"
   CHANGELOG_AUTHOR_NAME: "pi-top"
   CHANGELOG_AUTHOR_EMAIL: "deb-maintainers@pi-top.com"
   PACKAGECLOUD_REPO: "experimental"
@@ -60,7 +61,7 @@ jobs:
             --workdir=${{ github.workspace }} \
             -e BUILD_DEPENDENCIES="${{ matrix.package[2] }}" \
             --platform linux/${{ matrix.docker_architecture }} \
-            pitop/pypi-build:${{ matrix.distro }}-bookworm-support \
+            ${{ env.PYPI_BUILD_DOCKER_IMAGE }}:${{ matrix.distro }}-${{ env.PYPI_BUILD_DOCKER_BRANCH }} \
             bash -c "sudo apt update && \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package[0] }} \
               --options-str=\"${{ matrix.package[1] }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" && \

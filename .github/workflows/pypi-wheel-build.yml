@@ -1,4 +1,4 @@
-name: Build debs from wheels
+name: Build wheels from pypi packages
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: "pitop/pypi-build"
-  DOCKER_IMAGE_BRANCH: "bookworm-support"
+  DOCKER_IMAGE_BRANCH: "master"
 
 jobs:
   build-debs-from-wheels:
