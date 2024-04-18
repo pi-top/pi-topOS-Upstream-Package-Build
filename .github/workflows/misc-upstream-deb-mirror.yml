@@ -23,43 +23,35 @@ jobs:
       matrix:
         debian_architecture: ["armhf", "arm64"]
         distro: ["bullseye", "bookworm"]
-        include:
-          - repo: "AndrewFromMelbourne/raspi2png"
-            # get last commit
-            use_release_ref: "false"
-            patch: "sed -i 's/libpng12/libpng/g' debian/control"
-
-          - repo: "JoseExposito/touche"
-            use_release_ref: "true"
-            patch: "sed -i 's/npm (>= 3)/npm/g' debian/control && sed -i 's/focal/bullseye/g' debian/changelog && echo -e '\n\n\noverride_dh_auto_build:\n\tnpm ci\n\tdh_auto_build\n\noverride_dh_clean:\n\trm -rf node_modules\n\tdh_clean' >> debian/rules"
-
-          - repo: "JoseExposito/touchegg"
-            use_release_ref: "true"
-            patch: "sed -i 's/focal/bullseye/g' debian/changelog"
+        package: [
+          {repo: "AndrewFromMelbourne/raspi2png", use_release_ref: "false", patch: "sed -i 's/libpng12/libpng/g' debian/control"},
+          {repo: "JoseExposito/touche", use_release_ref: "true", patch: "sed -i 's/npm (>= 3)/npm/g' debian/control && sed -i 's/focal/bullseye/g' debian/changelog && echo -e '\n\n\noverride_dh_auto_build:\n\tnpm ci\n\tdh_auto_build\n\noverride_dh_clean:\n\trm -rf node_modules\n\tdh_clean' >> debian/rules"},
+          {repo: "JoseExposito/touchegg", use_release_ref: "true", patch: "sed -i 's/focal/bullseye/g' debian/changelog"},
+        ]
 
     steps:
       - id: last_release
-        if: matrix.use_release_ref == 'true'
+        if: matrix.package.use_release_ref == 'true'
         uses: thebritican/fetch-latest-release@v2.0.0
         with:
-          repo_path: ${{ matrix.repo }}
+          repo_path: ${{ matrix.package.repo }}
 
       - name: Checkout last release
-        if: matrix.use_release_ref == 'true'
-        uses: actions/checkout@v3
+        if: matrix.package.use_release_ref == 'true'
+        uses: actions/checkout@v4
         with:
-          repository: ${{ matrix.repo }}
+          repository: ${{ matrix.package.repo }}
           ref: ${{ steps.last_release.outputs.tag_name }}
 
       - name: Checkout last commit
-        if: matrix.use_release_ref != 'true'
-        uses: actions/checkout@v3
+        if: matrix.package.use_release_ref != 'true'
+        uses: actions/checkout@v4
         with:
-          repository: ${{ matrix.repo }}
+          repository: ${{ matrix.package.repo }}
 
       - name: Fix source
-        if: matrix.patch != ''
-        run: ${{ matrix.patch }}
+        if: matrix.package.patch != ''
+        run: ${{ matrix.package.patch }}
 
       # We only want ARM builds. This step is here to provide the option of
       # using a strategy matrix if additional builds (e.g. `arm64`) are desired
