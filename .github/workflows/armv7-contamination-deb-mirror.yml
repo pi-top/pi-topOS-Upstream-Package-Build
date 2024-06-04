@@ -10,12 +10,12 @@ on:
       - master
 
 env:
-  QT5_DEB_VERSION: "5.15.2+dfsg"
-  QT5_DEB_REV_VERSION: "3"
+  QT5_DEB_VERSION: "5.15.13+dfsg"
+  QT5_DEB_REV_VERSION: "1~deb12u1"
   DEB_ARCH: "armhf"
   PACKAGECLOUD_REPO: "experimental"
   OS: "debian"
-  DISTRO: "bullseye"
+  DISTRO: "bookworm"
   POOL_URL: "http://deb.debian.org/debian/pool/main/q/qtwebengine-opensource-src"
 
 jobs:
@@ -58,3 +58,9 @@ jobs:
           files: ./*.${{ matrix.type }}
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+
+      - name: Upload binary package artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.package }}.${{ matrix.type }}
+          path: ./*.${{ matrix.type }}
