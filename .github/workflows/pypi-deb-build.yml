@@ -32,6 +32,7 @@ jobs:
           - ["dlib", "", "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev" ]
           - ["click-logging", "", ""]
           - ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
+          - ["nmcli", "", ""]
 
         exclude:
           # dlib only in arm/v7 && arm64
@@ -47,6 +48,11 @@ jobs:
             package: ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
           - docker_architecture: "arm64"
             package: ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
+          # nmcli only in amd64
+          - docker_architecture: "arm/v7"
+            package: ["nmcli", "", ""]
+          - docker_architecture: "arm64"
+            package: ["nmcli", "", ""]
 
     steps:
       - name: Checkout code
