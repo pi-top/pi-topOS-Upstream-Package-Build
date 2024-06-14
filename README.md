@@ -40,6 +40,8 @@ User libraries:
     * Dependency of `further-link`.
 * [`python3-dbus-next`](https://pypi.org/project/dbus-next)
     * Dependency of `python3-bluez-peripheral`.
+* [`python3-nmcli`](https://pypi.org/project/nmcli)
+    * Dependency of `pt-os-web-portal` to interact with `NetworkManager` .
 
 ### Miscellaneous Upstream Rebuilds
 
