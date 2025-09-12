@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Check wheel exists for architecture
         run: |
@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload binary package artifacts
         if: env.WHEEL_FILES_FOUND == '1'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.distro }}.deb
           path: ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.deb
@@ -79,7 +79,7 @@ jobs:
 
       - name: Upload source package artifacts
         if: env.WHEEL_FILES_FOUND == '1'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.distro }}.deb-src
           path: ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.tar.*
