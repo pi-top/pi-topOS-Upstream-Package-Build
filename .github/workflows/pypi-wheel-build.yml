@@ -11,26 +11,28 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: "pitop/pypi-build"
-  DOCKER_IMAGE_BRANCH: "master"
+  # TODO: revert to "master" before merging
+  DOCKER_IMAGE_BRANCH: "new-bluez-version"
 
 jobs:
   build-debs-from-wheels:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         distro: ["bullseye", "bookworm"]
         architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
         package:
-          - ["bluez-peripheral", "", ""]
-          - ["dbus-fast", "", ""]
-          - ["imutils", "", ""]
-          - ["python-osc", "", ""]
-          - ["typing-extensions", "", ""]
+          # package name, version, build dependencies
+          - ["bluez-peripheral", "0.2.0a4", ""] # this is a pre-release version so we need to specify it to avoid downloading the latest release
+          - ["dbus-fast", "latest", ""]
+          - ["imutils", "latest", ""]
+          - ["python-osc", "latest", ""]
+          - ["typing-extensions", "latest", ""]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build in ARM Docker container
         run: |
@@ -44,13 +46,12 @@ jobs:
             ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.distro }}-${{ env.DOCKER_IMAGE_BRANCH}} \
             bash -c "sudo apt update && \
             sudo chown -R nonroot:nonroot . && \
-            ./pypi-build/scripts/pypi-build-wheel.sh ${{ matrix.package[0] }} artifacts/${{ matrix.package[0] }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/ && \
+            ./pypi-build/scripts/pypi-build-wheel.sh ${{ matrix.package[0] }} ${{ matrix.package[1] }} artifacts/${{ matrix.package[0] }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/ && \
             ls -lR artifacts"
 
       - name: Upload wheel
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: "wheels"
+          name: "wheels_${{ matrix.package[0] }}_${{ matrix.architecture.debian }}_${{ matrix.distro }}"
           path: "artifacts/"
           if-no-files-found: error
-

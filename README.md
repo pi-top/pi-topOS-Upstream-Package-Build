@@ -38,7 +38,7 @@ User libraries:
     * Re packaged since we require a newer version than what's available on RPi repos.
 * [`python3-bluez-peripheral`](https://pypi.org/project/bluez-peripheral)
     * Dependency of `further-link`.
-* [`python3-dbus-next`](https://pypi.org/project/dbus-next)
+* [`python3-dbus-fast`](https://pypi.org/project/dbus-fast)
     * Dependency of `python3-bluez-peripheral`.
 * [`python3-nmcli`](https://pypi.org/project/nmcli)
     * Dependency of `pt-os-web-portal` to interact with `NetworkManager` .

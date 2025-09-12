@@ -16,17 +16,17 @@ env:
 
 jobs:
   build-debs-from-wheels:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
-        package: ["python3-onnxruntime", "python3-typing-extensions", "python3-bluez-peripheral", "python3-osc", "python3-imutils"]
+        package: ["python3-onnxruntime", "python3-typing-extensions", "python3-bluez-peripheral", "python3-osc", "python3-imutils", "python3-dbus-fast"]
         distro: ["bullseye", "bookworm"]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Check wheel exists for architecture
         run: |
@@ -71,17 +71,17 @@ jobs:
 
       - name: Upload binary package artifacts
         if: env.WHEEL_FILES_FOUND == '1'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.distro }}.deb
+          name: ${{ matrix.package }}-${{ matrix.architecture.debian }}-${{ matrix.distro }}.deb
           path: ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.deb
           if-no-files-found: error
 
       - name: Upload source package artifacts
         if: env.WHEEL_FILES_FOUND == '1'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.distro }}.deb-src
+          name: ${{ matrix.package }}-${{ matrix.architecture.debian }}-${{ matrix.distro }}.deb-src
           path: ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.tar.*
           if-no-files-found: error
 

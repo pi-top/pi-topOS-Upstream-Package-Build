@@ -26,9 +26,18 @@ function extract_tarball() {
 }
 
 function download_tar_from_pypi() {
-  # Download tarball
-  if ! pypi-download "${1}"; then
-    echo "Failed to download ${1} from PyPI"
+  local PACKAGE_NAME="$1"
+  local VERSION="${2:-latest}"
+
+  echo "Downloading ${PACKAGE_NAME} from PyPI, version: ${VERSION}"
+
+  local CMD=(pypi-download "$PACKAGE_NAME")
+  if [ "$VERSION" != "latest" ]; then
+    CMD+=(--release "$VERSION")
+  fi
+
+  if ! "${CMD[@]}"; then
+    echo "Failed to download ${PACKAGE_NAME} from PyPI"
     exit 1
   fi
 }
@@ -36,9 +45,10 @@ function download_tar_from_pypi() {
 
 function main() {
   local PACKAGE_NAME="${1}"
-  local ARTIFACT_FOLDER="${2:-artifacts}"
+  local VERSION="${2}"
+  local ARTIFACT_FOLDER="${3:-artifacts}"
 
-  download_tar_from_pypi "${PACKAGE_NAME}"
+  download_tar_from_pypi "${PACKAGE_NAME}" "${VERSION}"
   TARBALL=$(find . -name "*.tar.gz" | head -n 1)
   FOLDER=$(basename "${TARBALL}" .tar.gz)
   
@@ -57,8 +67,8 @@ function main() {
 
 
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 <package-name> <dst-folder>"
+  echo "Usage: $0 <package-name> <version> <dst-folder>"
   exit 1
 fi
 
-main "$1" "$2"
+main "$1" "$2" "$3"
