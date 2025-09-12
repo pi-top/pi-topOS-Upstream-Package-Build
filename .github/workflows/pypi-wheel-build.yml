@@ -24,7 +24,7 @@ jobs:
         architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
         package:
           # package name, version, build dependencies
-          - ["bluez-peripheral", "0.2.0a4", ""]
+          - ["bluez-peripheral", "0.2.0a4", ""] # this is a pre-release version so we need to specify it to avoid downloading the latest release
           - ["dbus-fast", "latest", ""]
           - ["imutils", "latest", ""]
           - ["python-osc", "latest", ""]
