@@ -73,7 +73,7 @@ jobs:
         if: env.WHEEL_FILES_FOUND == '1'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.distro }}.deb
+          name: ${{ matrix.package }}-${{ matrix.architecture.debian }}-${{ matrix.distro }}.deb
           path: ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.deb
           if-no-files-found: error
 
@@ -81,7 +81,7 @@ jobs:
         if: env.WHEEL_FILES_FOUND == '1'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.distro }}.deb-src
+          name: ${{ matrix.package }}-${{ matrix.architecture.debian }}-${{ matrix.distro }}.deb-src
           path: ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.tar.*
           if-no-files-found: error
 
