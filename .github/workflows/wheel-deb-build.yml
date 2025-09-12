@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
-        package: ["python3-onnxruntime", "python3-typing-extensions", "python3-bluez-peripheral", "python3-osc", "python3-imutils"]
+        package: ["python3-onnxruntime", "python3-typing-extensions", "python3-bluez-peripheral", "python3-osc", "python3-imutils", "python3-dbus-fast"]
         distro: ["bullseye", "bookworm"]
 
     steps:
