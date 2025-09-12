@@ -15,18 +15,19 @@ env:
 
 jobs:
   build-debs-from-wheels:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         distro: ["bullseye", "bookworm"]
         architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
         package:
-          - ["bluez-peripheral", "", ""]
-          - ["dbus-fast", "", ""]
-          - ["imutils", "", ""]
-          - ["python-osc", "", ""]
-          - ["typing-extensions", "", ""]
+          # package name, build dependencies
+          - ["bluez-peripheral", ""]
+          - ["dbus-fast", ""]
+          - ["imutils", ""]
+          - ["python-osc", ""]
+          - ["typing-extensions", ""]
 
     steps:
       - name: Checkout code
@@ -39,7 +40,7 @@ jobs:
           docker run -i \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
-            -e BUILD_DEPENDENCIES="${{ matrix.package[2] }}" \
+            -e BUILD_DEPENDENCIES="${{ matrix.package[1] }}" \
             --platform ${{ matrix.architecture.docker }} \
             ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.distro }}-${{ env.DOCKER_IMAGE_BRANCH}} \
             bash -c "sudo apt update && \

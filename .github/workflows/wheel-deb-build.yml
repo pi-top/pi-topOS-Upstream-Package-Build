@@ -16,7 +16,7 @@ env:
 
 jobs:
   build-debs-from-wheels:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
