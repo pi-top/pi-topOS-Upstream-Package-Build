@@ -11,7 +11,8 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: "pitop/pypi-build"
-  DOCKER_IMAGE_BRANCH: "master"
+  # TODO: revert to "master" before merging
+  DOCKER_IMAGE_BRANCH: "new-bluez-version"
 
 jobs:
   build-debs-from-wheels:
@@ -22,12 +23,12 @@ jobs:
         distro: ["bullseye", "bookworm"]
         architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
         package:
-          # package name, build dependencies
-          - ["bluez-peripheral", ""]
-          - ["dbus-fast", ""]
-          - ["imutils", ""]
-          - ["python-osc", ""]
-          - ["typing-extensions", ""]
+          # package name, version, build dependencies
+          - ["bluez-peripheral", "0.2.0a4", ""]
+          - ["dbus-fast", "latest", ""]
+          - ["imutils", "latest", ""]
+          - ["python-osc", "latest", ""]
+          - ["typing-extensions", "latest", ""]
 
     steps:
       - name: Checkout code
@@ -40,12 +41,12 @@ jobs:
           docker run -i \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
-            -e BUILD_DEPENDENCIES="${{ matrix.package[1] }}" \
+            -e BUILD_DEPENDENCIES="${{ matrix.package[2] }}" \
             --platform ${{ matrix.architecture.docker }} \
             ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.distro }}-${{ env.DOCKER_IMAGE_BRANCH}} \
             bash -c "sudo apt update && \
             sudo chown -R nonroot:nonroot . && \
-            ./pypi-build/scripts/pypi-build-wheel.sh ${{ matrix.package[0] }} artifacts/${{ matrix.package[0] }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/ && \
+            ./pypi-build/scripts/pypi-build-wheel.sh ${{ matrix.package[0] }} ${{ matrix.package[1] }} artifacts/${{ matrix.package[0] }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/ && \
             ls -lR artifacts"
 
       - name: Upload wheel
