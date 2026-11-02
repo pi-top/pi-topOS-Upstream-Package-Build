@@ -56,7 +56,8 @@ jobs:
               else
                 pip3 install wheel2deb
               fi
-              pip3 install packaging==21.3
+              # wheel2deb imports click, which newer typer no longer pulls in
+              pip3 install packaging==21.3 click
               cd ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}
               wheel2deb --verbose
               wheel2deb build --verbose

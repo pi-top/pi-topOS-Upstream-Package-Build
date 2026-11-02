@@ -99,12 +99,17 @@ def handle_non_setuptools_package(extracted_folder):
     "--options-str",
     type=str,
 )
-def main(options_str, package, path_to_tarball):
+@click.option(
+    "--release",
+    type=str,
+    default="",
+)
+def main(options_str, package, path_to_tarball, release):
     """pi-topOS meta-exec."""
-    _main(options_str, package, path_to_tarball)
+    _main(options_str, package, path_to_tarball, release)
 
 
-def _main(options_str, package, path_to_tarball):
+def _main(options_str, package, path_to_tarball, release=""):
     click.echo(f"Building {package}...")
 
     click.echo("Fixing permissions for current directory...")
@@ -113,7 +118,10 @@ def _main(options_str, package, path_to_tarball):
 
     if len(path_to_tarball) == 0:
         click.echo("Downloading source...")
-        proc = subprocess.run(["pypi-download", package], capture_output=True)
+        download = ["pypi-download", package]
+        if release:
+            download.append(f"--release={release}")
+        proc = subprocess.run(download, capture_output=True)
         if proc.returncode != 0:
             click.echo("Failed to download source")
             click.echo(proc)
