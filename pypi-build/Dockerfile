@@ -3,6 +3,8 @@ ARG DEBIAN_BASE_IMAGE=bookworm
 FROM debian:$DEBIAN_BASE_IMAGE
 
 ENV DEBIAN_FRONTEND=noninteractive
+# Upstream test suites need PyPI, which the package build cannot reach
+ENV DEB_BUILD_OPTIONS=nocheck
 
 RUN apt-get update && \
     apt-get install -y debhelper dh-python python3-all-dev python3-pip sudo libffi-dev libssl-dev pkg-config
@@ -10,7 +12,7 @@ RUN apt-get update && \
 ENV PY_EXT_MANAGED_FILE="/usr/lib/python3.11/EXTERNALLY-MANAGED"
 RUN rm -r $PY_EXT_MANAGED_FILE || true
 
-RUN pip3 install stdeb requests click toml
+RUN pip3 install stdeb==0.11.0 requests click toml
 
 RUN python3 -m pip install --upgrade pip
 
@@ -23,7 +25,7 @@ RUN pip3 install poetry
 # https://github.com/pypa/setuptools/issues/3269
 #RUN pip3 install setuptools --force-reinstall
 
-# Patch stdeb until https://github.com/astraw/stdeb/pull/195 is merged
+# Patch wheel2deb
 COPY files/ /
 
 # Add a user with userid 1000 and name nonroot
