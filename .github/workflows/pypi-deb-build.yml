@@ -22,11 +22,11 @@ env:
 
 jobs:
   build-from-pypi:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        distro: ["bullseye", "bookworm"]
+        distro: ["bookworm"]
         docker_architecture: ["arm/v7", "arm64", "amd64"]
         package:
           - ["dlib", "", "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev" ]
@@ -80,21 +80,21 @@ jobs:
           echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find . -name "*.dsc")")" >> $GITHUB_ENV
 
       - name: Upload binary package artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.distro }}.deb
           path: "./${{ matrix.package[0] }}/${{ matrix.distro }}/*.deb"
           if-no-files-found: error
 
       - name: Upload source package artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.distro}}.deb-src
           path: "./${{ matrix.package[0] }}/${{ matrix.distro }}/*.tar.xz"
           if-no-files-found: error
 
       - name: Upload package build metadata artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.distro }}.metadata
           path: |

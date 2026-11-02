@@ -17,16 +17,16 @@ env:
 
 jobs:
   build-upstream:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         debian_architecture: ["armhf", "arm64"]
-        distro: ["bullseye", "bookworm"]
+        distro: ["bookworm"]
         package: [
           {repo: "AndrewFromMelbourne/raspi2png", use_release_ref: "false", patch: "sed -i 's/libpng12/libpng/g' debian/control"},
-          {repo: "JoseExposito/touche", use_release_ref: "true", patch: "sed -i 's/npm (>= 3)/npm/g' debian/control && sed -i 's/focal/bullseye/g' debian/changelog && echo -e '\n\n\noverride_dh_auto_build:\n\tnpm ci\n\tdh_auto_build\n\noverride_dh_clean:\n\trm -rf node_modules\n\tdh_clean' >> debian/rules"},
-          {repo: "JoseExposito/touchegg", use_release_ref: "true", patch: "sed -i 's/focal/bullseye/g' debian/changelog"},
+          {repo: "JoseExposito/touche", use_release_ref: "true", patch: "sed -i 's/npm (>= 3)/npm/g' debian/control && sed -i 's/focal/bookworm/g' debian/changelog && echo -e '\n\n\noverride_dh_auto_build:\n\tnpm ci\n\tdh_auto_build\n\noverride_dh_clean:\n\trm -rf node_modules\n\tdh_clean' >> debian/rules"},
+          {repo: "JoseExposito/touchegg", use_release_ref: "true", patch: "sed -i 's/focal/bookworm/g' debian/changelog"},
         ]
 
     steps:
@@ -84,19 +84,19 @@ jobs:
           echo "ARTIFACT_PREFIX=$(basename -s .dsc "$(find . -name "*.dsc")")" >> $GITHUB_ENV
 
       - name: Upload binary package artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.distro}}_${{ env.ARTIFACT_PREFIX }}.deb
           path: ./artifacts/*.deb
 
       - name: Upload source package artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.distro}}_${{ env.ARTIFACT_PREFIX }}.deb-src
           path: ./artifacts/*.tar.xz
 
       - name: Upload package build metadata artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.distro}}_${{ env.ARTIFACT_PREFIX }}.metadata
           path: |
