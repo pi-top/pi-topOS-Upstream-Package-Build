@@ -3,6 +3,8 @@ name: Build wheels from pypi packages
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
     paths:
       - ".github/workflows/pypi-wheel-build.yml"
   pull_request:

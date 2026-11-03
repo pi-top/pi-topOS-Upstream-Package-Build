@@ -3,6 +3,8 @@ name: Mirroring armv7 Contaminated Debian Packages
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
     paths:
       - ".github/workflows/armv7-contamination-deb-mirror.yml"
   pull_request:
