@@ -3,6 +3,8 @@ name: Debian Packaging for Python Packages from PyPI
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
     paths:
       - ".github/workflows/pypi-deb-build.yml"
       - "pypi-build/scripts"

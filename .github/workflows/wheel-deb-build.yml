@@ -3,6 +3,8 @@ name: Build debs from wheels in repo
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
     paths:
       - ".github/workflows/wheel-deb-build.yml"
       - "wheels"
