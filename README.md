@@ -28,17 +28,10 @@ External [SDK](https://github.com/pi-top/pi-top-Python-SDK) dependencies:
 * [`onnxruntime`](https://pypi.org/project/onnxruntime)
     * Cross-platform, high performance ML inferencing and training accelerator. Currently, the wheel is being generated on a Raspberry Pi 4 and uploaded into this repository manually. This then uses [`wheel2deb`](https://github.com/upciti/wheel2deb) to create a Debian binary package.
 
-User libraries:
-* [`python-sonic`](https://pypi.org/project/python-sonic)
-    * Interface with Sonic Pi via Python.
-* [`python-osc`](https://pypi.org/project/python-osc)
-    * Dependency of `python-sonic`.
-* [`python3-typing-extensions`](https://pypi.org/project/typing-extensions)
-    * Dependency of `python3-aiohttp`, which is a dependency of `further-link`.
-    * Re packaged since we require a newer version than what's available on RPi repos.
+Other pi-top software dependencies:
 * [`python3-bluez-peripheral`](https://pypi.org/project/bluez-peripheral)
     * Dependency of `further-link`.
-* [`python3-dbus-next`](https://pypi.org/project/dbus-next)
+* [`python3-dbus-fast`](https://pypi.org/project/dbus-fast)
     * Dependency of `python3-bluez-peripheral`.
 * [`python3-nmcli`](https://pypi.org/project/nmcli)
     * Dependency of `pt-os-web-portal` to interact with `NetworkManager` .
@@ -47,8 +40,6 @@ User libraries:
 
 Some upstream non pi-top software provides their own Debian packaging. Sometimes this needs to be modified slightly, but in these cases we aim to build from the latest released version, or the latest commit on the main branch.
 
-* [`raspi2png`](https://github.com/AndrewFromMelbourne/raspi2png)
-    * Utility to take a snapshot of the Raspberry Pi screen and save it as a PNG file
 * [`touchegg`](https://github.com/JoseExposito/touchegg)
     * Linux multi-touch gesture recognizer
 * [`touche`](https://github.com/JoseExposito/touche)

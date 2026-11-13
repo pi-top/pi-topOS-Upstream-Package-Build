@@ -26,7 +26,6 @@ jobs:
         debian_architecture: ["armhf", "arm64"]
         distro: ["bookworm"]
         package: [
-          {repo: "AndrewFromMelbourne/raspi2png", use_release_ref: "false", patch: "sed -i 's/libpng12/libpng/g' debian/control"},
           {repo: "JoseExposito/touche", use_release_ref: "true", patch: "sed -i 's/npm (>= 3)/npm/g' debian/control && sed -i 's/focal/bookworm/g' debian/changelog && echo -e '\n\n\noverride_dh_auto_build:\n\tnpm ci\n\tdh_auto_build\n\noverride_dh_clean:\n\trm -rf node_modules\n\tdh_clean' >> debian/rules"},
           {repo: "JoseExposito/touchegg", use_release_ref: "true", patch: "sed -i 's/focal/bookworm/g' debian/changelog"},
         ]
