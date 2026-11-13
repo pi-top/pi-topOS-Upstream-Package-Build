@@ -19,6 +19,13 @@ Qt 5's [WebEngine](https://doc.qt.io/qt-5/qtwebengine-overview.html) component i
 
 Where possible, Python packages are repackaged for Debian via [`stdeb`](https://github.com/astraw/stdeb) from their source tarball on PyPI.
 
+Packages that need [`wheel2deb`](https://github.com/upciti/wheel2deb) are built by `wheel-deb-build.yml` from `wheels/<package>/<arch>/bookworm/`, which holds either:
+
+* a `requirements.txt` pinning a PyPI release by version and sdist hash, which CI builds into a wheel natively for that architecture (armhf and arm64 on GitHub's arm64 runner), or
+* a single committed wheel (older packages, built elsewhere).
+
+A `wheel2deb.yml` in the same folder sets the Debian revision. Bump it when rebuilding a version that's already been published.
+
 
 External [SDK](https://github.com/pi-top/pi-top-Python-SDK) dependencies:
 * [`imutils`](https://pypi.org/project/imutils)

@@ -1,0 +1,1 @@
+bluez-peripheral==0.2.0a4 --hash=sha256:1e7bad03a9338c8344a56fdc80f768f385db89cbc43da039ce3627ae33c83df6
