@@ -28,7 +28,6 @@ jobs:
           - ["dbus-fast", "", ""]
           - ["imutils", "", ""]
           - ["python-osc", "", ""]
-          - ["typing-extensions", "", ""]
 
     steps:
       - name: Checkout code

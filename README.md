@@ -33,12 +33,9 @@ User libraries:
     * Interface with Sonic Pi via Python.
 * [`python-osc`](https://pypi.org/project/python-osc)
     * Dependency of `python-sonic`.
-* [`python3-typing-extensions`](https://pypi.org/project/typing-extensions)
-    * Dependency of `python3-aiohttp`, which is a dependency of `further-link`.
-    * Re packaged since we require a newer version than what's available on RPi repos.
 * [`python3-bluez-peripheral`](https://pypi.org/project/bluez-peripheral)
     * Dependency of `further-link`.
-* [`python3-dbus-next`](https://pypi.org/project/dbus-next)
+* [`python3-dbus-fast`](https://pypi.org/project/dbus-fast)
     * Dependency of `python3-bluez-peripheral`.
 * [`python3-nmcli`](https://pypi.org/project/nmcli)
     * Dependency of `pt-os-web-portal` to interact with `NetworkManager` .
@@ -47,8 +44,6 @@ User libraries:
 
 Some upstream non pi-top software provides their own Debian packaging. Sometimes this needs to be modified slightly, but in these cases we aim to build from the latest released version, or the latest commit on the main branch.
 
-* [`raspi2png`](https://github.com/AndrewFromMelbourne/raspi2png)
-    * Utility to take a snapshot of the Raspberry Pi screen and save it as a PNG file
 * [`touchegg`](https://github.com/JoseExposito/touchegg)
     * Linux multi-touch gesture recognizer
 * [`touche`](https://github.com/JoseExposito/touche)
