@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import click
+import hashlib
 import os
 import pathlib
 import shlex
@@ -104,12 +105,18 @@ def handle_non_setuptools_package(extracted_folder):
     type=str,
     default="",
 )
-def main(options_str, package, path_to_tarball, release):
+@click.option(
+    "--sha256",
+    type=str,
+    default="",
+    help="Expected sha256 of the downloaded source tarball",
+)
+def main(options_str, package, path_to_tarball, release, sha256):
     """pi-topOS meta-exec."""
-    _main(options_str, package, path_to_tarball, release)
+    _main(options_str, package, path_to_tarball, release, sha256)
 
 
-def _main(options_str, package, path_to_tarball, release=""):
+def _main(options_str, package, path_to_tarball, release="", sha256=""):
     click.echo(f"Building {package}...")
 
     click.echo("Fixing permissions for current directory...")
@@ -127,7 +134,13 @@ def _main(options_str, package, path_to_tarball, release=""):
             click.echo(proc)
             return
         tarball_filename = str(proc.stdout).split(" ")[1].split("\\")[0]
-        return _main(options_str, package, os.path.join(currentDir, tarball_filename))
+        tarball = os.path.join(currentDir, tarball_filename)
+        if sha256:
+            digest = hashlib.sha256(pathlib.Path(tarball).read_bytes()).hexdigest()
+            if digest != sha256:
+                click.echo(f"{tarball_filename}: sha256 {digest}, expected {sha256}")
+                exit(1)
+        return _main(options_str, package, tarball)
     elif not pathlib.Path(path_to_tarball).exists():
         click.echo(f"Tarball not found at {path_to_tarball}!")
         return

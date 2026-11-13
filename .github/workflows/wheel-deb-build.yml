@@ -7,7 +7,8 @@ on:
       - master
     paths:
       - ".github/workflows/wheel-deb-build.yml"
-      - "wheels"
+      - "wheels/**"
+      - "scripts/check-armhf-elf.sh"
   pull_request:
     branches:
       - master
@@ -73,8 +74,8 @@ jobs:
                 if [ "\$(dpkg --print-architecture)" = armhf ]; then
                   export _PYTHON_HOST_PLATFORM=linux-armv7l
                 fi
-                # Build the pinned PyPI release from its hash-checked sdist
-                pip3 wheel --no-deps --require-hashes --no-binary \$(sed 's/[=<> ].*//' requirements.txt) -r requirements.txt -w .
+                # The pinned hash picks the file: an sdist is built, a wheel is used as is
+                pip3 wheel --no-deps --require-hashes -r requirements.txt -w .
               fi
               wheel2deb --verbose
               wheel2deb build --verbose
@@ -91,6 +92,11 @@ jobs:
             echo "::error::Expected only ${{ matrix.architecture.debian }} packages"
             exit 1
           fi
+
+      - name: Check armhf code targets ARMv7
+        if: env.WHEEL_FILES_FOUND == '1' && matrix.architecture.debian == 'armhf'
+        run: |
+          ./scripts/check-armhf-elf.sh ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output/*.deb
 
       - name: Generate artifact name
         if: env.WHEEL_FILES_FOUND == '1'
