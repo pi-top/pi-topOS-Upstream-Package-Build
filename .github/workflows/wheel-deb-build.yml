@@ -69,6 +69,10 @@ jobs:
               pip3 install packaging==21.3 click
               cd ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}
               if [ -f requirements.txt ]; then
+                # 32-bit on an arm64 kernel reports armv8l, which wheel2deb treats as arch all
+                if [ "\$(dpkg --print-architecture)" = armhf ]; then
+                  export _PYTHON_HOST_PLATFORM=linux-armv7l
+                fi
                 # Build the pinned PyPI release from its hash-checked sdist
                 pip3 wheel --no-deps --require-hashes --no-binary \$(sed 's/[=<> ].*//' requirements.txt) -r requirements.txt -w .
               fi
@@ -77,6 +81,16 @@ jobs:
           EOF
 
           ls -l ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output
+
+      # wheel2deb falls back to arch all on an unknown platform tag and still exits 0
+      - name: Check package architecture
+        if: env.WHEEL_FILES_FOUND == '1' && matrix.architecture.debian != 'all'
+        run: |
+          out=./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}/output
+          if ls "$out"/*_all.deb 2>/dev/null || ! ls "$out"/*_${{ matrix.architecture.debian }}.deb; then
+            echo "::error::Expected only ${{ matrix.architecture.debian }} packages"
+            exit 1
+          fi
 
       - name: Generate artifact name
         if: env.WHEEL_FILES_FOUND == '1'
