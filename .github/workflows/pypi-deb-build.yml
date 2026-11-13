@@ -32,31 +32,32 @@ jobs:
       matrix:
         distro: ["bookworm"]
         docker_architecture: ["arm/v7", "arm64", "amd64"]
+        # [name, stdeb options, build dependencies, version, sdist sha256]; versions are what devices run
         package:
-          - ["dlib", "", "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev" ]
-          - ["click-logging", "", ""]
-          - ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
-          - ["nmcli", "", "", "1.3.0"]
+          - ["dlib", "", "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev", "19.24.2", "2d4f618073bc6b297aa01ce05595a2d32b5b37e69cafd99f796e77346f6dcfb5"]
+          - ["click-logging", "", "", "1.0.1", "1c3b2835ad4834df7c42e47ac7591866535af499dded3a84403f14411c5041a8"]
+          - ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", "", "0.4.3", "185aa09ed1e9ff02aa3f5702add749ebc44c4b0725fe7619fbc552d725b75c52"]
+          - ["nmcli", "", "", "1.3.0", "68df8562349298b19bfb6cf532c481b7ff3dd672a26445384e55da6be491d3e9"]
 
         exclude:
           # dlib only in arm/v7 && arm64
           - docker_architecture: "amd64"
-            package: [ "dlib", "", "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev" ]
+            package: ["dlib", "", "build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev", "19.24.2", "2d4f618073bc6b297aa01ce05595a2d32b5b37e69cafd99f796e77346f6dcfb5"]
           # click-logging only in amd64
           - docker_architecture: "arm64"
-            package: ["click-logging", "", ""]
+            package: ["click-logging", "", "", "1.0.1", "1c3b2835ad4834df7c42e47ac7591866535af499dded3a84403f14411c5041a8"]
           - docker_architecture: "arm/v7"
-            package: ["click-logging", "", ""]
+            package: ["click-logging", "", "", "1.0.1", "1c3b2835ad4834df7c42e47ac7591866535af499dded3a84403f14411c5041a8"]
           # python-sonic only in amd64
           - docker_architecture: "arm/v7"
-            package: ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
+            package: ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", "", "0.4.3", "185aa09ed1e9ff02aa3f5702add749ebc44c4b0725fe7619fbc552d725b75c52"]
           - docker_architecture: "arm64"
-            package: ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", ""]
+            package: ["python-sonic", "--package3 python3-sonic --depends3 python3-osc", "", "0.4.3", "185aa09ed1e9ff02aa3f5702add749ebc44c4b0725fe7619fbc552d725b75c52"]
           # nmcli only in amd64
           - docker_architecture: "arm/v7"
-            package: ["nmcli", "", "", "1.3.0"]
+            package: ["nmcli", "", "", "1.3.0", "68df8562349298b19bfb6cf532c481b7ff3dd672a26445384e55da6be491d3e9"]
           - docker_architecture: "arm64"
-            package: ["nmcli", "", "", "1.3.0"]
+            package: ["nmcli", "", "", "1.3.0", "68df8562349298b19bfb6cf532c481b7ff3dd672a26445384e55da6be491d3e9"]
 
     steps:
       - name: Checkout code
@@ -73,6 +74,7 @@ jobs:
             bash -c "sudo apt update && \
             ./pypi-build/scripts/pypi-build.py ${{ matrix.package[0] }} \
               --release=\"${{ matrix.package[3] }}\" \
+              --sha256=\"${{ matrix.package[4] }}\" \
               --options-str=\"${{ matrix.package[1] }} --upstream-version-suffix '+ptos3' --debian-version ${{ github.run_number }}\" && \
             mkdir -p ${{ matrix.package[0] }}/${{ matrix.distro }}/ && \
             mv artifacts/* ${{ matrix.package[0] }}/${{ matrix.distro }}/ && \
