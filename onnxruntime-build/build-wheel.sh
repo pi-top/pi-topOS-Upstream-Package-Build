@@ -26,7 +26,9 @@ git -C /eigen checkout FETCH_HEAD
 cd /src
 # 32-bit on an arm64 kernel reports armv8l, which wheel2deb treats as arch all
 export _PYTHON_HOST_PLATFORM=linux-armv7l
-./build.sh --config Release --update --build --build_wheel \
+# Without linux32, uname -m says aarch64 and CMake builds the 64-bit ARM code paths
+setarch linux32 uname -m
+setarch linux32 ./build.sh --config Release --update --build --build_wheel \
   --parallel "$(nproc)" --skip_tests --allow_running_as_root --compile_no_warning_as_error \
   --cmake_extra_defines onnxruntime_BUILD_UNIT_TESTS=OFF FETCHCONTENT_SOURCE_DIR_EIGEN=/eigen
 
