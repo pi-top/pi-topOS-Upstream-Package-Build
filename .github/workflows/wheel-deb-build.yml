@@ -18,27 +18,34 @@ env:
 
 jobs:
   build-debs-from-wheels:
-    runs-on: ubuntu-24.04
+    # The arm64 runner runs armhf containers natively, so no QEMU
+    runs-on: ${{ matrix.architecture.runner }}
     strategy:
       fail-fast: false
       matrix:
-        architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
-        package: ["python3-onnxruntime", "python3-bluez-peripheral", "python3-osc", "python3-imutils"]
+        architecture:
+          - {docker: "linux/arm/v7", debian: "armhf", runner: "ubuntu-24.04-arm"}
+          - {docker: "linux/arm64", debian: "arm64", runner: "ubuntu-24.04-arm"}
+          - {docker: "linux/amd64", debian: "all", runner: "ubuntu-24.04"}
+        package: ["python3-onnxruntime", "python3-bluez-peripheral", "python3-dbus-fast", "python3-osc", "python3-imutils"]
         distro: ["bookworm"]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # A folder holds either one committed wheel or a pinned requirements.txt
       - name: Check wheel exists for architecture
         run: |
-          echo "WHEEL_FILES_FOUND=$(ls -1 ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }} 2>/dev/null | wc -l | xargs)" >> "$GITHUB_ENV"
+          dir=./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}
+          if [ -f "$dir/requirements.txt" ] || [ "$(ls -1 "$dir"/*.whl 2>/dev/null | wc -l)" = 1 ]; then
+            echo "WHEEL_FILES_FOUND=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Build in ARM Docker container
         if: env.WHEEL_FILES_FOUND == '1'
         run: |
           ls -lR
-          docker run --rm --privileged tonistiigi/binfmt --install all
 
           docker run -i \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
@@ -61,6 +68,10 @@ jobs:
               # wheel2deb imports click, which newer typer no longer pulls in
               pip3 install packaging==21.3 click
               cd ./wheels/${{ matrix.package }}/${{ matrix.architecture.debian }}/${{ matrix.distro }}
+              if [ -f requirements.txt ]; then
+                # Build the pinned PyPI release from its hash-checked sdist
+                pip3 wheel --no-deps --require-hashes --no-binary \$(sed 's/[=<> ].*//' requirements.txt) -r requirements.txt -w .
+              fi
               wheel2deb --verbose
               wheel2deb build --verbose
           EOF

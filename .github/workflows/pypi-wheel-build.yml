@@ -24,8 +24,6 @@ jobs:
         distro: ["bookworm"]
         architecture: [{docker: "linux/arm/v7", debian: "armhf"},{docker: "linux/arm64", debian: "arm64"},{docker: "linux/amd64", debian: "all"}]
         package:
-          - ["bluez-peripheral", "", ""]
-          - ["dbus-fast", "", ""]
           - ["imutils", "", ""]
           - ["python-osc", "", ""]
 
