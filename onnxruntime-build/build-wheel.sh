@@ -16,11 +16,18 @@ apt-get install -y --no-install-recommends -t bookworm-backports cmake
 git clone --depth 1 --branch "v${version}" https://github.com/microsoft/onnxruntime /src
 test "$(git -C /src rev-parse HEAD)" = "${commit}"
 
+# GitLab regenerated the Eigen archive the release pins by SHA1, so fetch the
+# same commit by id instead (onnxruntime's cmake/deps.txt names it)
+eigen_commit="$(sed -n 's#^eigen;.*/archive/\([0-9a-f]\{40\}\)/.*#\1#p' /src/cmake/deps.txt)"
+git init /eigen
+git -C /eigen fetch --depth 1 https://gitlab.com/libeigen/eigen.git "${eigen_commit}"
+git -C /eigen checkout FETCH_HEAD
+
 cd /src
 # 32-bit on an arm64 kernel reports armv8l, which wheel2deb treats as arch all
 export _PYTHON_HOST_PLATFORM=linux-armv7l
 ./build.sh --config Release --update --build --build_wheel \
   --parallel "$(nproc)" --skip_tests --allow_running_as_root --compile_no_warning_as_error \
-  --cmake_extra_defines onnxruntime_BUILD_UNIT_TESTS=OFF
+  --cmake_extra_defines onnxruntime_BUILD_UNIT_TESTS=OFF FETCHCONTENT_SOURCE_DIR_EIGEN=/eigen
 
 cp build/Linux/Release/dist/*.whl "${out}/"
