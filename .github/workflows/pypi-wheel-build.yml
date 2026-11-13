@@ -27,6 +27,7 @@ jobs:
           - ["bluez-peripheral", "", ""]
           - ["dbus-fast", "", ""]
           - ["imutils", "", ""]
+          - ["python-osc", "", ""]
 
     steps:
       - name: Checkout code
