@@ -1,0 +1,59 @@
+name: Build onnxruntime armhf wheel
+
+# No armv7 onnxruntime wheel exists upstream, so we build one from the release tag.
+# Run by hand on master to publish it as a release that wheel-deb-build pins by URL and hash.
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/onnxruntime-wheel-build.yml"
+      - "onnxruntime-build/**"
+      - "scripts/check-armhf-elf.sh"
+
+env:
+  ONNXRUNTIME_VERSION: "1.18.0"
+  ONNXRUNTIME_COMMIT: "45737400a2f3015c11f005ed7603611eaed306a6"
+
+jobs:
+  build-wheel:
+    # The arm64 runner runs armhf containers natively
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 340
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build wheel in armhf container
+        run: |
+          mkdir -p dist
+          docker run --rm --platform linux/arm/v7 \
+            --volume "${{ github.workspace }}":/w --workdir /w \
+            debian:bookworm \
+            ./onnxruntime-build/build-wheel.sh "$ONNXRUNTIME_VERSION" "$ONNXRUNTIME_COMMIT" /w/dist
+          ls -l dist
+          sha256sum dist/*.whl
+
+      - name: Check wheel tag and ARMv7 target
+        run: |
+          ls dist/onnxruntime-${ONNXRUNTIME_VERSION}-cp311-cp311-linux_armv7l.whl
+          ./scripts/check-armhf-elf.sh dist/*.whl
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: onnxruntime-armhf-wheel
+          path: dist/*.whl
+          if-no-files-found: error
+
+      - name: Publish release
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="onnxruntime-${ONNXRUNTIME_VERSION}-armhf-${{ github.run_number }}"
+          gh release create "$tag" dist/*.whl --target "$GITHUB_SHA" --latest=false --title "$tag" \
+            --notes "microsoft/onnxruntime v${ONNXRUNTIME_VERSION} (${ONNXRUNTIME_COMMIT}) for armhf, built by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. sha256 $(sha256sum dist/*.whl | cut -d' ' -f1)"

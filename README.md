@@ -21,10 +21,12 @@ Where possible, Python packages are repackaged for Debian via [`stdeb`](https://
 
 Packages that need [`wheel2deb`](https://github.com/upciti/wheel2deb) are built by `wheel-deb-build.yml` from `wheels/<package>/<arch>/bookworm/`, which holds either:
 
-* a `requirements.txt` pinning a PyPI release by version and sdist hash, which CI builds into a wheel natively for that architecture (armhf and arm64 on GitHub's arm64 runner), or
+* a `requirements.txt` pinning a PyPI release (or a URL) by hash. A pinned sdist is built into a wheel natively for that architecture (armhf and arm64 on GitHub's arm64 runner); a pinned wheel is used as is. Or:
 * a single committed wheel (older packages, built elsewhere).
 
 A `wheel2deb.yml` in the same folder sets the Debian revision. Bump it when rebuilding a version that's already been published.
+
+Compiled armhf packages must target ARMv7, the armhf baseline. `scripts/check-armhf-elf.sh` fails the build if any doesn't, since native builds run on an ARMv8 CPU.
 
 
 External [SDK](https://github.com/pi-top/pi-top-Python-SDK) dependencies:
@@ -33,7 +35,7 @@ External [SDK](https://github.com/pi-top/pi-top-Python-SDK) dependencies:
 * [`dlib`](https://pypi.org/project/dlib)
     * Real-world machine learning and data analysis application toolkit
 * [`onnxruntime`](https://pypi.org/project/onnxruntime)
-    * Cross-platform, high performance ML inferencing and training accelerator. Currently, the wheel is being generated on a Raspberry Pi 4 and uploaded into this repository manually. This then uses [`wheel2deb`](https://github.com/upciti/wheel2deb) to create a Debian binary package.
+    * Cross-platform, high performance ML inferencing and training accelerator, used by the SDK's emotion classifier. arm64 uses the official PyPI wheel. No armv7 wheel exists upstream, so `onnxruntime-wheel-build.yml` builds one from the release tag natively on GitHub's arm64 runner; running it by hand on master publishes the wheel as a release of this repo.
 
 User libraries:
 * [`python-sonic`](https://pypi.org/project/python-sonic)

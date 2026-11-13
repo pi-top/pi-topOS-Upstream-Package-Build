@@ -7,8 +7,9 @@ on:
       - master
     paths:
       - ".github/workflows/pypi-deb-build.yml"
-      - "pypi-build/scripts"
-      - "pypi-build/patches"
+      - "pypi-build/scripts/**"
+      - "pypi-build/patches/**"
+      - "scripts/check-armhf-elf.sh"
   pull_request:
     branches:
       - master
@@ -24,7 +25,8 @@ env:
 
 jobs:
   build-from-pypi:
-    runs-on: ubuntu-24.04
+    # The arm64 runner runs arm/v7 and arm64 containers natively, so no QEMU
+    runs-on: ${{ matrix.docker_architecture == 'amd64' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     strategy:
       fail-fast: false
       matrix:
@@ -62,8 +64,6 @@ jobs:
 
       - name: Build in ARM Docker container
         run: |
-          docker run --rm --privileged tonistiigi/binfmt --install all
-
           docker run -i \
             --volume ${{ github.workspace }}:${{ github.workspace }} \
             --workdir=${{ github.workspace }} \
@@ -77,6 +77,11 @@ jobs:
             mkdir -p ${{ matrix.package[0] }}/${{ matrix.distro }}/ && \
             mv artifacts/* ${{ matrix.package[0] }}/${{ matrix.distro }}/ && \
             ls -l ${{ matrix.package[0] }}/${{ matrix.distro }}/"
+
+      - name: Check armhf code targets ARMv7
+        if: matrix.docker_architecture == 'arm/v7'
+        run: |
+          ./scripts/check-armhf-elf.sh ./${{ matrix.package[0] }}/${{ matrix.distro }}/*.deb
 
       - name: Generate artifact name
         run: |
