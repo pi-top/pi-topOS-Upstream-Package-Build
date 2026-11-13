@@ -1,0 +1,1 @@
+onnxruntime @ https://github.com/pi-top/pi-topOS-Upstream-Package-Build/releases/download/onnxruntime-1.18.0-armhf-5/onnxruntime-1.18.0-cp311-cp311-linux_armv7l.whl --hash=sha256:89988895bedfc2eb3d4964c02c6db26a85124bd9c03404d22843109313a4d021
