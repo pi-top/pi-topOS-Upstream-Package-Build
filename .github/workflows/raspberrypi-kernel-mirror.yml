@@ -1,0 +1,50 @@
+name: Copy approved Raspberry Pi kernel
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/raspberrypi-kernel-mirror.yml"
+      - "raspberrypi-kernel/**"
+      - "scripts/fetch-raspberrypi-debs.sh"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/raspberrypi-kernel-mirror.yml"
+      - "raspberrypi-kernel/**"
+      - "scripts/fetch-raspberrypi-debs.sh"
+
+permissions:
+  contents: read
+
+env:
+  PACKAGECLOUD_REPO: "pi-top-os-unstable"
+  OS: "debian"
+  DISTRO: "bookworm"
+
+jobs:
+  copy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download and verify the approved packages
+        run: scripts/fetch-raspberrypi-debs.sh debs
+
+      - name: Upload binary package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberrypi-kernel-debs
+          path: debs/*.deb
+
+      - name: Upload .deb to PackageCloud
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: pi-top/ghaction-packagecloud@main
+        with:
+          repository: ${{ env.PACKAGECLOUD_REPO }}/${{ env.OS }}/${{ env.DISTRO }}
+          files: ./debs/*.deb
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
