@@ -15,6 +15,12 @@ Qt 5's [WebEngine](https://doc.qt.io/qt-5/qtwebengine-overview.html) component i
 * [`libqt5webenginewidgets5`](https://packages.debian.org/stable/libqt5webenginewidgets5)
 * [`qml-module-qtwebengine`](https://packages.debian.org/stable/qml-module-qtwebengine)
 
+### Raspberry Pi kernel and boot firmware
+
+pi-topOS installs only the kernel, `raspi-firmware` and `rpi-eeprom` versions listed in [`raspberrypi-boot/approved`](raspberrypi-boot/approved); `pt-os-kernel-pin` in [pi-topOS-Core-Packages](https://github.com/pi-top/pi-topOS-Core-Packages) blocks the rest. `raspberrypi-boot-mirror.yml` downloads them from archive.raspberrypi.com, checks them against Raspberry Pi's signed package index, and on master copies them into `pi-top-os-unstable`.
+
+To approve a new kernel: update `approved` to the versions currently in Raspberry Pi's index, run the release-candidate test with them from `pi-top-os-unstable`, then promote them to `pi-top-os` with the rest of the release.
+
 ### Python
 
 Where possible, Python packages are repackaged for Debian via [`stdeb`](https://github.com/astraw/stdeb) from their source tarball on PyPI.
