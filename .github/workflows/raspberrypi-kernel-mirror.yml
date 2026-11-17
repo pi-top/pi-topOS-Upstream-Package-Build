@@ -1,4 +1,4 @@
-name: Copy approved Raspberry Pi kernel and firmware
+name: Copy approved Raspberry Pi kernel
 
 on:
   workflow_dispatch:
@@ -6,15 +6,15 @@ on:
     branches:
       - master
     paths:
-      - ".github/workflows/raspberrypi-boot-mirror.yml"
-      - "raspberrypi-boot/**"
+      - ".github/workflows/raspberrypi-kernel-mirror.yml"
+      - "raspberrypi-kernel/**"
       - "scripts/fetch-raspberrypi-debs.sh"
   pull_request:
     branches:
       - master
     paths:
-      - ".github/workflows/raspberrypi-boot-mirror.yml"
-      - "raspberrypi-boot/**"
+      - ".github/workflows/raspberrypi-kernel-mirror.yml"
+      - "raspberrypi-kernel/**"
       - "scripts/fetch-raspberrypi-debs.sh"
 
 permissions:
@@ -37,7 +37,7 @@ jobs:
       - name: Upload binary package artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: raspberrypi-boot-debs
+          name: raspberrypi-kernel-debs
           path: debs/*.deb
 
       - name: Upload .deb to PackageCloud

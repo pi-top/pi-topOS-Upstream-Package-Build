@@ -1,12 +1,12 @@
 #!/bin/bash
-# Downloads the packages in raspberrypi-boot/approved into the given directory,
+# Downloads the packages in raspberrypi-kernel/approved into the given directory,
 # checking each against Raspberry Pi's signed package index.
 set -euo pipefail
 
-boot=$(cd "$(dirname "$0")/../raspberrypi-boot" && pwd)
+kernel=$(cd "$(dirname "$0")/../raspberrypi-kernel" && pwd)
 out=${1:?usage: $0 <output directory>}
-# shellcheck source-path=SCRIPTDIR source=../raspberrypi-boot/approved
-source "$boot/approved"
+# shellcheck source-path=SCRIPTDIR source=../raspberrypi-kernel/approved
+source "$kernel/approved"
 
 archive=http://archive.raspberrypi.com/debian
 work=$(mktemp -d)
@@ -15,7 +15,7 @@ mkdir -p "$out"
 
 curl -fsS "$archive/dists/bookworm/InRelease" -o "$work/InRelease"
 # Key CF8A1AF502A2AA2D763BAE7E82B129927FA3303E, from raspberrypi-archive-keyring
-gpgv --keyring "$boot/raspberrypi-archive-keyring.gpg" --output "$work/Release" "$work/InRelease"
+gpgv --keyring "$kernel/raspberrypi-archive-keyring.gpg" --output "$work/Release" "$work/InRelease"
 
 for arch in armhf arm64; do
   index=main/binary-$arch/Packages.gz
@@ -43,5 +43,3 @@ fetch() { # package version architecture
 
 for p in $KERNEL_PACKAGES_ARMHF; do fetch "$p" "$KERNEL_VERSION" armhf; done
 for p in $KERNEL_PACKAGES_ARM64; do fetch "$p" "$KERNEL_VERSION" arm64; done
-fetch raspi-firmware "$RASPI_FIRMWARE_VERSION" armhf
-fetch rpi-eeprom "$RPI_EEPROM_VERSION" armhf

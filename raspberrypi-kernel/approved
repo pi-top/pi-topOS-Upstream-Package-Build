@@ -1,5 +1,5 @@
-# Raspberry Pi kernel, boot firmware and EEPROM versions approved for pi-topOS.
-# pt-os-kernel-pin (pi-topOS-Core-Packages) stops devices installing any others.
+# Raspberry Pi kernel approved for pi-topOS. pt-os-kernel-pin
+# (pi-topOS-Core-Packages) stops devices installing any other.
 # Merging a change copies these packages into pi-top-os-unstable; promoting them
 # to pi-top-os releases them. Only versions in Raspberry Pi's current package
 # index can be copied.
@@ -8,6 +8,3 @@ KERNEL_VERSION="1:6.12.115-1+rpt1"
 # The kernel packages pi-topOS images install
 KERNEL_PACKAGES_ARMHF="linux-image-rpi-v6 linux-image-rpi-v7 linux-image-rpi-v7l linux-headers-rpi-v6 linux-headers-rpi-v7 linux-headers-rpi-v7l"
 KERNEL_PACKAGES_ARM64="linux-image-rpi-v8"
-
-RASPI_FIRMWARE_VERSION="1:1.20260915-1~bookworm"
-RPI_EEPROM_VERSION="28.33-1"
